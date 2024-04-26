@@ -1,0 +1,32 @@
+.card-title {
+    // text-align: center;
+    padding: 15px;
+    color: #4f4e4e;
+    border-bottom: 1px solid lightgray;
+    font-size: 15px;
+}
+.row-config {
+    background-color: #fff;
+    border-bottom: 1px solid lightgray;
+    height: 70px;
+}
+.inp-topic {
+    border: 1px solid #b5b3b3;
+    height: 38px !important;
+    min-height: 38px !important;
+    border-radius: 4px;
+    margin: 0 20px;
+}
+
+ion-card {
+    box-shadow: none;
+    border: 1px solid lightgray;
+}
+ion-input {  
+    width: 25%;
+    --padding-start: 10px;  
+    --padding-end: 10px;  
+} 
+.card-sentiment {
+    height: 300px;
+}

@@ -1,0 +1,45 @@
+<ion-content class="content">
+  <div class="wrapper">
+    <ion-grid class="container">
+      <ion-row class="d-flex-middle-center">
+        <span class="title">Empower your business with real-time, data-driven insights from global media sources to drive strategic decision-making in the dynamic Life Sciences industry</span>
+      </ion-row>
+      <br/>
+      <ion-row class="width-100 d-flex-middle-center">
+        <ion-card class="card">
+          <ion-row class="yellow-ruler"></ion-row>
+          <ion-card-content>
+            <ion-row class="d-flex-middle-center">
+              <span class="errors" *ngIf="!isValidUser && isSubmitting">Invalid username or password</span>
+            </ion-row>
+            <ion-row class="d-flex-middle-center bold">
+              LOGIN
+            </ion-row>
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+              <ion-item>
+                <ion-label position="floating">Username</ion-label>
+                <ion-input formControlName="username" type="text" (ionInput)="textChange()"></ion-input>
+              </ion-item>
+              <ion-item *ngIf="loginForm.get('username').invalid && (loginForm.get('username').dirty || loginForm.get('username').touched)">
+                <ion-text color="danger" *ngIf="loginForm.get('username').errors.required">Username is required</ion-text>
+              </ion-item>
+
+              <ion-item>
+                <ion-label position="floating">Password</ion-label>
+                <ion-input formControlName="password" type="password" (ionInput)="textChange()"></ion-input>
+              </ion-item>
+              <ion-item *ngIf="loginForm.get('password').invalid && (loginForm.get('password').dirty || loginForm.get('password').touched)">
+                <ion-text color="danger" *ngIf="loginForm.get('password').errors.required">Password is required</ion-text>
+              </ion-item>
+
+              <div class="text-right">
+                <ion-button fill="clear">Forgot Password</ion-button>  
+              </div>
+              <ion-button expand="block" type="submit" class="login-btn" [disabled]="loginForm.invalid">Login</ion-button>
+            </form>
+          </ion-card-content>
+        </ion-card>
+      </ion-row>
+    </ion-grid>
+  </div>
+</ion-content>

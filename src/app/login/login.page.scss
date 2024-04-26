@@ -1,0 +1,52 @@
+.content {
+    // --background: var(--ion-color-primary) !important;
+    // --background: #fff;
+}
+.wrapper {
+    width: 100%;
+    height: 100%;
+    background: url("../../assets/images/login-bg.png") no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+}
+.container {
+    // background-color: red;
+    padding: 20px;
+    width: 60%;
+}
+.title {
+    font-weight: bold;
+    font-size: 20px;
+    color: var(--ion-color-primary);
+    // width: 320px;
+    line-height: 1.5;
+    justify-content: center;
+}
+.card {
+    min-width: 320px;
+    max-width: 400px;
+    ion-card-content {
+        padding: 10px;
+    }
+}
+.text-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+ion-item {
+    padding: 10px 0;
+}
+.img-doc-pat {
+    width: 100px;
+}
+.yellow-ruler {
+    background-color: var(--ion-color-primary);
+    height: 5px;
+}
+.errors {
+    color: red;
+    font-size: 12px;
+    text-align: center;
+}

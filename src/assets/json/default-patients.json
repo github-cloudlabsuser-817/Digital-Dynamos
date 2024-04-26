@@ -1,0 +1,113 @@
+[
+    {
+      "id": 1,
+      "name": "Mr. Senthil Kumar",
+      "age": 35,
+      "gender": "Male",
+      "phone": "+44 234 2343",
+      "address": "Leverkusen, Germany",
+      "temperature": 38,
+      "height": 165,
+      "weight": 75
+    },
+    {
+      "id": 2,
+      "name": "Mr. Weidmann",
+      "age": 28,
+      "gender": "Male",
+      "phone": "+44 922 2343",
+      "address": "Leverkusen, Germany",
+      "temperature": 40,
+      "height": 182,
+      "weight": 75
+    },
+    {
+      "id": 3,
+      "name": "Ms. Emilie Clarke",
+      "age": 32,
+      "gender": "Female",
+      "phone": "+44 883 2343",
+      "address": "Leverkusen, Germany",
+      "temperature": 40,
+      "height": 152,
+      "weight": 55
+    },
+    {
+      "id": 4,
+      "name": "Mr. Thomson Coleman",
+      "age": 45,
+      "gender": "Male",
+      "phone": "+87 234 9823",
+      "address": "Leverkusen, Germany",
+      "temperature": 39,
+      "height": 195,
+      "weight": 82
+    },
+    {
+      "id": 5,
+      "name": "Ms. Sophia Martinez",
+      "age": 28,
+      "gender": "Female",
+      "phone": "+49 123 4567",
+      "address": "Berlin, Germany",
+      "temperature": 38,
+      "height": 170,
+      "weight": 60
+    },
+    {
+      "id": 6,
+      "name": "Mr. Alexander Lee",
+      "age": 40,
+      "gender": "Male",
+      "phone": "+33 678 9012",
+      "address": "Paris, France",
+      "temperature": 37,
+      "height": 180,
+      "weight": 85
+    },
+    {
+      "id": 7,
+      "name": "Ms. Maria Rodriguez",
+      "age": 22,
+      "gender": "Female",
+      "phone": "+34 567 8901",
+      "address": "Madrid, Spain",
+      "temperature": 36,
+      "height": 160,
+      "weight": 55
+    },
+    {
+      "id": 8,
+      "name": "Mr. Wei Chen",
+      "age": 33,
+      "gender": "Male",
+      "phone": "+86 123 4567",
+      "address": "Beijing, China",
+      "temperature": 38,
+      "height": 175,
+      "weight": 70
+    },
+    {
+      "id": 9,
+      "name": "Ms. Fatima Khan",
+      "age": 27,
+      "gender": "Female",
+      "phone": "+92 345 6789",
+      "address": "Karachi, Pakistan",
+      "temperature": 39,
+      "height": 155,
+      "weight": 50
+    },
+    {
+      "id": 10,
+      "name": "Mr. Juan Lopez",
+      "age": 48,
+      "gender": "Male",
+      "phone": "+34 678 1234",
+      "address": "Barcelona, Spain",
+      "temperature": 39,
+      "height": 185,
+      "weight": 80
+    }    
+  ]
+  

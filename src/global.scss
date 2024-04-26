@@ -1,0 +1,137 @@
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+@import "./theme/variables.scss";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+$grey-color: #f2f0f0;
+$card-title-color: #5adbb7;
+$font-color: #494646;
+
+.d-flex-middle-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.d-flex-align-center {
+    display: flex;
+    align-items: center;
+}
+.d-flex-justify-center {
+    display: flex;
+    justify-content: center;
+}
+.d-flex {
+    display: flex;
+}
+.header-text {  
+    font-weight: bold !important;  
+    color: $font-color !important; /* Customize the color as desired */
+    // background-color: $card-title-color;
+    padding: 10px 0;
+}
+
+.bold {
+    font-weight: bold;
+    text-decoration: underline;
+}
+.break-line {
+    white-space: pre-line;
+}
+.lbl {
+    font-size: 13px;
+    color: $font-color;
+}
+.data {
+    font-size: 13px;
+    font-weight: bold;
+    color: $font-color;
+}
+
+.card {
+    padding: 0;
+    margin: 10px 0;
+    --background: white;
+    .card-title {
+        padding: 10px;
+        background-color: $card-title-color;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    ion-card-content {
+        padding: 0;
+    }
+}
+
+.wrapper {
+    padding: 16px;
+}
+.float-right {
+    float: right;
+}
+.width-100 {
+    width: 100%;
+}
+.padding-10 {
+    padding: 10px !important;
+}
+.sub-title {
+    font-size: 14px;
+    font-weight: bold;
+    padding-bottom: 5px;
+}
+.border-radius-5 {
+    border-radius: 5px;
+}
+ion-list ion-item:last-child{
+    --border: none;
+    --inner-border: none;
+    --border-width: 0; /* Set the border width to 0 */
+    --border-style: none; /* Set the border style to none */
+}
+ion-content {
+    --background: #f7f4f4;
+}
+ion-button {
+    text-transform: capitalize;
+}
+.ng-select.custom {
+    width: 25%;
+    .ng-select-container {
+      color: #333;
+      background-color: #fff;
+      border-radius: 4px;
+      border: 1px solid #b1b0b0;
+      min-height: 38.5px;
+      align-items: center;
+    }
+    .ng-clear-wrapper {
+      color: var(--ion-color-primary);
+    }
+    // .ng-arrow-wrapper .ng-arrow {
+    //   color: blue;
+    //   border-color:  transparent transparent;
+    // }
+  }

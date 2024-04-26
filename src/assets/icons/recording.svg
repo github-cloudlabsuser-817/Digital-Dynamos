@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="258.599" height="259.303" viewBox="0 0 258.599 259.303">
+  <g id="Group_173" data-name="Group 173" opacity="0.36">
+    <g id="Group_7" data-name="Group 7" transform="translate(0 0)">
+      <g id="Ellipse_1" data-name="Ellipse 1" transform="translate(40.164 40.868)" fill="none" stroke="#000" stroke-width="1" opacity="0.4">
+        <ellipse cx="89.136" cy="88.783" rx="89.136" ry="88.783" stroke="none"/>
+        <ellipse cx="89.136" cy="88.783" rx="88.636" ry="88.283" fill="none"/>
+      </g>
+      <ellipse id="Ellipse_2" data-name="Ellipse 2" cx="70.111" cy="70.463" rx="70.111" ry="70.463" transform="translate(59.189 59.189)" fill="#ffdf74"/>
+      <g id="Ellipse_3" data-name="Ellipse 3" transform="translate(20.434 21.139)" fill="none" stroke="#000" stroke-width="1" opacity="0.3">
+        <ellipse cx="108.865" cy="108.513" rx="108.865" ry="108.513" stroke="none"/>
+        <ellipse cx="108.865" cy="108.513" rx="108.365" ry="108.013" fill="none"/>
+      </g>
+      <g id="Ellipse_4" data-name="Ellipse 4" fill="none" stroke="#000" stroke-width="0.5" opacity="0.3">
+        <ellipse cx="129.299" cy="129.652" rx="129.299" ry="129.652" stroke="none"/>
+        <ellipse cx="129.299" cy="129.652" rx="129.049" ry="129.402" fill="none"/>
+      </g>
+    </g>
+    <g id="Group_6" data-name="Group 6" transform="translate(117.615 107.873)">
+      <path id="Path_1" data-name="Path 1" d="M238.9,86.785a7.7,7.7,0,0,1-7.7-7.7V63.7a7.7,7.7,0,1,1,15.39,0V79.09a7.7,7.7,0,0,1-7.7,7.7Zm0-28.583a5.5,5.5,0,0,0-5.5,5.5V79.09a5.5,5.5,0,0,0,10.993,0V63.7A5.5,5.5,0,0,0,238.9,58.2Zm10.993,18.689a1.1,1.1,0,0,0-1.1,1.1v1.1a9.894,9.894,0,0,1-19.788,0v-1.1a1.1,1.1,0,0,0-2.2,0v1.1A12.108,12.108,0,0,0,237.8,91.13v6.648h-3.848a1.1,1.1,0,1,0,0,2.2h9.894a1.1,1.1,0,0,0,0-2.2H240V91.13a12.107,12.107,0,0,0,10.993-12.041v-1.1a1.1,1.1,0,0,0-1.1-1.1Z" transform="translate(-226.803 -56.004)"/>
+    </g>
+  </g>
+</svg>

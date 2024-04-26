@@ -1,0 +1,99 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Dashboard</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="config()">
+        <ion-icon name="cog-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button (click)="logout()">
+        <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid class="ion-no-padding">
+    <ion-row class="row-config">
+      <ion-col class="d-flex-align-center ion-padding">
+        <ng-select class="select-opts custom" placeholder="Region" [(ngModel)]="regionSelected">
+          <ng-option *ngFor="let region of regions" [value]="region.key">{{region.value}}</ng-option>
+        </ng-select>
+        <ion-input [(ngModel)]="topic" mode="ios" placeholder="Topic" class="inp-topic"></ion-input>
+        <ion-button color="primary" fill="solid" [disabled]="!canAnalyse()" (click)="analyse()">Analyse</ion-button>
+      </ion-col>
+      <!-- <ion-col size="3" push="4" class="d-flex-middle-center">
+        <ion-input [(ngModel)]="topic" mode="ios" placeholder="Topic" class="inp-topic"></ion-input>
+      </ion-col> -->
+      <!-- <ion-col class="d-flex-middle-center">
+        <ng-select class="select-opts custom" placeholder="Topics">
+            <ng-option *ngFor="let region of regions" [value]="p">{{p}}</ng-option>
+        </ng-select>
+      </ion-col> -->
+    </ion-row>
+    <ion-row class="h-50">
+      <ion-col>
+        <ion-card class="full-height">
+          <ion-card-title class="card-title">
+            Global Media
+          </ion-card-title>
+          <ion-card-content>
+            <div id="chart" *ngIf="occurrenceChart">  
+              <apx-chart
+                [series]="occurrenceChart.series"
+                [chart]="occurrenceChart.chart"
+                [dataLabels]="occurrenceChart.dataLabels"
+                [plotOptions]="occurrenceChart.plotOptions"
+                [yaxis]="occurrenceChart.yaxis"
+                [xaxis]="occurrenceChart.xaxis"
+                [legend]="occurrenceChart.legend"
+                [colors]="occurrenceChart.colors"
+                [grid]="occurrenceChart.grid"
+              ></apx-chart> 
+            </div>  
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col>
+        <ion-card class="full-height">
+          <ion-card-title class="card-title">
+            Global Insights
+          </ion-card-title>
+          <ion-card-content>
+            <div [innerHTML]="globalInsights"></div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    <ion-row class="h-50">
+      <ion-col>
+        <ion-card class="full-height">
+          <ion-card-title class="card-title">
+            Sentiment Analysis
+          </ion-card-title>
+          <ion-card-content class="d-flex-middle-center card-sentiment">
+            <input type="file" #fileInputRef id="fileInput" style="display: none" (change)="handleFileInput($event)" accept=".csv, .xlsx">
+            <ion-button size="small" type="button" (click)="uploadFile()" mode="ios" class="upload-button">Upload customer reviews</ion-button>
+            <!-- <div id="chart">  
+              <apx-chart  
+                [series]="bchartOptions.series"  
+                [chart]="bchartOptions.chart"  
+                [xaxis]="bchartOptions.xaxis"  
+                [yaxis]="bchartOptions.yaxis"  
+              ></apx-chart> 
+            </div>   -->
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col>
+        <ion-card class="full-height">
+          <ion-card-title class="card-title">
+            Insights 2
+          </ion-card-title>
+          <ion-card-content>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
