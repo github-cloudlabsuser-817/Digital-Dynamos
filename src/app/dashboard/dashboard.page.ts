@@ -1,5 +1,5 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ModalController, NavController } from '@ionic/angular';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { ModalController, NavController, Platform } from '@ionic/angular';
 import { DatePipe } from '@angular/common';
 import { ConfigPage } from '../config/config.page';
 import { LoadingService } from '../providers/loading.service';
@@ -13,9 +13,11 @@ import { AlertService } from '../services/alert-service';
 import { TopicInfoPage } from '../topic-info/topic-info.page';
 import { AddTopicPage } from '../add-topic/add-topic.page';
 import { HttpService } from '../services/http-service';
+import { jsPDF } from 'jspdf';  
 import * as d3 from 'd3';
 import * as d3Cloud from 'd3-cloud';
 import * as Papa from 'papaparse';
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-dashboard',
@@ -121,6 +123,11 @@ export class DashboardPage implements OnInit {
   isLoadingInsights = false;
   isLoadingSentmts = false;
   isLoadingKeyph = false;
+  exporting = false;
+  isPrinting = false;
+
+  // Screen size
+  isMobile = false;
 
   constructor(
     private navCtrl: NavController,
@@ -130,7 +137,8 @@ export class DashboardPage implements OnInit {
     private datePipe: DatePipe,
     private authService: MsalService,
     private alertService: AlertService,
-    private httpService: HttpService
+    private httpService: HttpService,
+    private platform: Platform
   ) {
     this.initForm();
   }
@@ -152,38 +160,47 @@ export class DashboardPage implements OnInit {
   }
 
   ngOnInit() {
-    // let res = `Given the provided data and the news content, it is important to note that the decision for a Life science industry to engage in product development in India must consider various factors.
-    // 1. **Political Stability:**  
-    // - Political stability is crucial for any business venture. In India, the political environment has been relatively stable, with the ruling party having a strong mandate. However, there are instances of regional political instability that could impact business operations. For instance, news about French Greens' top candidate promoting "European pharmaceutical sovereignty" might hint at political trends that favor national production, which could influence India's political stance on foreign life science companies.  
-    // 2. **Economic Stability:**  
-    // - India has shown significant GDP growth over the years, even though there was a contraction in 2020 due to the COVID-19 pandemic. The bounce-back in 2021 and continued growth projections indicate economic resilience. However, the inflation rates provided also show volatility, which can impact the cost of business operations.   
-    // 3. *Labor Movements:*
-    // - India has a vast informal labor market that could provide cost-effective labor for product development but comes with risks such as lack of formal contracts and potential labor unrest. The news content doesn't provide direct insights into labor movements impacting the life science industry, but it is known that labor laws and movements in India are an essential factor to consider.  
-    // **GDP Growth and Income Inequality:**  
-    // - While GDP growth is a positive indicator, income inequality can lead to market segmentation and potential social unrest, which can impact a business's market and operations.   
-    // **Informal Labor Market:**  
-    // - The informal labor market in India is large, which can lead to challenges in regulatory compliance and labor rights, impacting the company's reputation and operations.  
-    // **Potential Risks and Challenges:**  
-    // - The company may face challenges related to intellectual property rights protection, as seen with Indian pharma giants pivoting to weight-loss medications and generic drugs production (News 12, 20, 22, 30).  
-    // - Competition from established players like Novo Nordisk and Eli Lilly in the obesity drug market is intense, as suggested by multiple news articles (News 1, 2, 6, 7, 10).  
-    // - Regulatory changes, such as those concerning digital markets (News 15), and the political climate around pharmaceutical sovereignty (News 16) could impact operations.  
-    // *Recommendations:*
-    // - Establish a strong legal team to navigate India's intellectual property and labor laws.  
-    // - Consider entering into partnerships or joint ventures with local firms to mitigate political and economic risks.  
-    // - Stay informed and adaptive to the regulatory changes in India's digital and pharmaceutical markets.  
-    // - Engage in corporate social responsibility initiatives to address income inequality and improve the company's image.  
-    // **Overall Score:**  
-    // - Considering the above factors, the overall score for the viability of a Life science industry on Product Development in India could be around 70%. This score reflects the potential for growth and the significant market size, counterbalanced by the risks associated with economic volatility, competition, and regulatory challenges.  
-    // The news articles provided do offer insights into the competition in the life science sector, particularly in the obesity drug market, and highlight the potential for growth in the pharmaceutical industry. However, they also underscore the importance of staying competitive in pricing and supply chain management (News 4, 8, 10). The articles suggest that while there is a demand for such products, companies must be prepared to navigate a dynamic market with strong competitors.`
-    // res = res.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-    // res = res.replace(/\*(.*?)\*/g, "<strong>$1</strong>");
-    // res = res.replace(/(\d+\.)\s(.*?)/g, "<strong>$1</strong> $2");
-    // this.globalInsights = res.replace(/\n/g, "<br>");
+    this.detectScreenSize();
+  }
+
+  // ionViewDidEnter() {
+  //   this.wordData = [{
+  //     text: "one",
+  //     size: 10,
+  //     value: 10
+  //   }];
+  //   for (let i = 0; i < 20; i++) {  
+  //     this.wordData.push({  
+  //       text: `word${i}`,  
+  //       size: 20,  
+  //       value: 30  
+  //     });  
+  //   }  
+  //   this.drawWordChart();
+  // }
+
+  @HostListener('window:resize', ['$event'])  
+  onWindowResize(event: any) {  
+    // Handle window resize event here  
+    this.drawWordChart();
+    this.detectScreenSize();
+  }
+  
+  // Method to detect screen size
+  detectScreenSize() {
+    if (this.platform.is('tablet') || this.platform.is('ipad') || this.platform.width() >= 768) {
+      console.log('Screen size is MD (Medium)');
+      // Do something for medium-sized screens (MD)
+      this.isMobile = false;
+    } else {
+      console.log('Screen size is SM (Small)');
+      this.isMobile = true;
+      // Do something for small-sized screens (SM)
+    }
   }
 
   drawWordChart() {
-
-    this.wordData = this.wordData.slice(0, 50);
+    let data = this.wordData.slice(0, 50);
     const colorScale = d3.scaleOrdinal()
       .domain([0, 50]) // Define the domain of values  
       .range(['#cc33ff', '#33cc33', '#ff3300', '#0000ff', '#00cccc', '#237291', '#9d2j42', '#a2j4ld']); // Define the range of colors  
@@ -191,8 +208,6 @@ export class DashboardPage implements OnInit {
     const cardElement = this.cardWordContainerRef.nativeElement as HTMLElement;
     const cardWidth = cardElement.offsetWidth - 20;
     const cardHeight = cardElement.offsetHeight - 20;
-
-    console.log('containerwidth', cardWidth);
 
     const divChart = document.querySelector('.div-chart');
     const svgElement = divChart.querySelector('svg');
@@ -208,7 +223,7 @@ export class DashboardPage implements OnInit {
 
     const layout = d3Cloud()
       .size([cardWidth, cardHeight])
-      .words(this.wordData)
+      .words(data)
       .padding(3)
       .rotate(() => (Math.random() * 2) * 0) // Random rotation  
       .font('Arial')
@@ -350,7 +365,7 @@ export class DashboardPage implements OnInit {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', 'data.csv');
+    link.setAttribute('download', `${this.getRegionText()}-${this.topicSelected}-${Date.now()}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -374,6 +389,7 @@ export class DashboardPage implements OnInit {
     });
 
     const options = { headers: headers };
+    let industryPrompt = this.industrySelected ? `for a ${this.industrySelected} on ${this.topicSelected} ` : `for a ${this.topicSelected} `
     const content = {
       "messages": [
         {
@@ -390,7 +406,7 @@ export class DashboardPage implements OnInit {
         },
         {
           "role": "user",
-          "content": `Based on an analysis of political stability, economic stability, and labor movements in ${this.getRegionText()}, determine whether it would be a viable decision for a ${this.industrySelected} industry on ${this.topicSelected} in ${this.getRegionText()}. Provide reasons for your answer and suggest any potential risks or challenges the company may face in terms of political stability: economic stability: by considering factors such as GDP growth: income inequality: and the informal labor market: labor movements, recommendations and overall good to go score out of 100%`
+          "content": `Based on an analysis of political stability, economic stability, and labor movements in ${this.getRegionText()}, determine whether it would be a viable decision ${industryPrompt} in ${this.getRegionText()}. Provide reasons for your answer and suggest any potential risks or challenges the company may face in terms of political stability: economic stability: by considering factors such as GDP growth: income inequality: and the informal labor market: labor movements, recommendations and overall score in the format of ?/100`
         },
       ],
       "max_tokens": 800,
@@ -408,6 +424,8 @@ export class DashboardPage implements OnInit {
           res = res.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
           res = res.replace(/\*(.*?)\*/g, "<strong>$1</strong>");
           res = res.replace(/(\d+\.)\s(.*?)/g, "<strong>$1</strong> $2");
+          res = res.replace(/(.*:)/g, "<b>$1</b>");
+
           this.globalInsights = res.replace(/\n/g, "<br>");
         }
       }, (error) => {
@@ -766,5 +784,32 @@ export class DashboardPage implements OnInit {
     });
     modal.present();
     const { data, role } = await modal.onWillDismiss();
+  }
+  getFileName() {
+    return this.getRegionText() + "_" + this.topicSelected + Date.now() + ".pdf";
+  }
+  onExport() {
+    this.exporting = true;
+    setTimeout(() => {
+      var data = document.getElementById('htmlContent');
+      html2canvas(data).then((canvas: any) => {
+        const imgWidth = 208;
+        const pageHeight = 295;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+        heightLeft -= pageHeight;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        doc.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight, '', 'FAST');
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight;
+          doc.addPage();
+          doc.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight, '', 'FAST');
+          heightLeft -= pageHeight;
+        }
+          doc.save(this.getFileName());
+          this.exporting = false;
+      });
+    }, 1000);
   }
 }

@@ -1,5 +1,6 @@
 ion-content {
-    --background: #eeeeee;
+    --background: #d9e7ec;
+    // --background: linear-gradient(90deg, #fccafb 0%, #f4f7d7 80%);
 }
 
 .full-width {
@@ -36,7 +37,9 @@ ion-content {
 .card-insights {
     min-height: 930px;
 }
-
+.card-word-count {
+    max-height: 370px;
+}
 .row-config {
     background-color: #fff;
     border-bottom: 1px solid lightgray;
@@ -58,6 +61,7 @@ ion-input {
     --padding-end: 10px;  
 } 
 ion-header {
+    box-shadow: none;
     ion-toolbar {
       // set background color
       --background: var(--ion-color-primary);
@@ -73,4 +77,19 @@ ion-header {
 .div-chart {
     width: 100%;
     height: 100%;
+}
+.wrapper-print {
+    width: 800px;
+}
+.btn-export {
+    padding: 0;
+    margin: 0;
+    position: relative;
+    float: right;
+}
+.btn-analyse {
+    padding-top: 16px;
+}
+.red {
+    color: red;
 }

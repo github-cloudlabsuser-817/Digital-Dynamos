@@ -42,6 +42,7 @@ $font-color: #494646;
 .d-flex-justify-center {
     display: flex;
     justify-content: center;
+    flex-direction: column;
 }
 .d-flex {
     display: flex;
@@ -62,7 +63,7 @@ $font-color: #494646;
     white-space: pre-line;
 }
 .lbl {
-    font-size: 13px;
+    font-size: 14px;
     color: $font-color;
 }
 .data {
