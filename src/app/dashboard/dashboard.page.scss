@@ -1,32 +1,73 @@
-.card-title {
-    // text-align: center;
-    padding: 15px;
-    color: #4f4e4e;
-    border-bottom: 1px solid lightgray;
-    font-size: 15px;
+ion-content {
+    --background: #eeeeee;
 }
+
+.full-width {
+    width: 100%;
+}
+.card {
+    // min-height: 20px;
+    box-shadow: none;
+    // border: 1px solid lightgray;
+    width: 100%;
+    padding: 0;
+    margin:0;
+    color: #2c2c2c;
+    .card-title {
+        padding: 15px;
+        font-size: 15px;
+        border-bottom: 1px solid lightgray;
+        color: #000000;
+    }
+    ion-card-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        // max-height: 260px;
+        min-height: 250px;
+        width: 100%;
+    }
+    .card-top {
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+}
+
 .row-config {
     background-color: #fff;
     border-bottom: 1px solid lightgray;
-    height: 70px;
+    min-height: 70px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
 }
 .inp-topic {
     border: 1px solid #b5b3b3;
     height: 38px !important;
     min-height: 38px !important;
     border-radius: 4px;
-    margin: 0 20px;
 }
 
-ion-card {
-    box-shadow: none;
-    border: 1px solid lightgray;
-}
 ion-input {  
-    width: 25%;
+    width: 100%;
     --padding-start: 10px;  
     --padding-end: 10px;  
 } 
-.card-sentiment {
-    height: 300px;
+ion-header {
+    ion-toolbar {
+      // set background color
+      --background: var(--ion-color-primary);
+    //   --background: linear-gradient(90deg, var(--ion-color-primary) 0%, rgb(156, 69, 154) 80%);
+      // set icon/text color
+      --color: #ffffff;
+    }
+}
+
+.margin-5 {
+    padding: 5px !important;
+}
+.div-chart {
+    width: 100%;
+    height: 100%;
 }

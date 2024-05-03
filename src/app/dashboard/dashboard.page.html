@@ -1,9 +1,15 @@
-<ion-header>
-  <ion-toolbar color="primary">
+<ion-header class="heading">
+  <ion-toolbar>
     <ion-title>Dashboard</ion-title>
     <ion-buttons slot="end">
+      <ion-button fill="outline" (click)="onAddTopic()">Add topic<ion-icon
+          name="add-circle-outline"></ion-icon></ion-button>
+      <ion-button fill="outline" class="select-region" (click)="onKnowMore()">Know more<ion-icon
+          name="help-outline"></ion-icon>
+      </ion-button>
+      <input type="file" #fileInputRef id="fileInput" style="display: none" (change)="handleFileInput($event)" accept=".docx,.txt">
       <ion-button (click)="config()">
-        <ion-icon name="cog-outline" slot="icon-only"></ion-icon>
+        <ion-icon name="cloud-upload-outline" slot="icon-only"></ion-icon>
       </ion-button>
       <ion-button (click)="logout()">
         <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
@@ -15,82 +21,100 @@
 <ion-content>
   <ion-grid class="ion-no-padding">
     <ion-row class="row-config">
-      <ion-col class="d-flex-align-center ion-padding">
-        <ng-select class="select-opts custom" placeholder="Region" [(ngModel)]="regionSelected">
+      <ion-col size-md="2.5" size-xs="12" class="margin-5">
+        <ng-select class="select-region custom" placeholder="Region *" [(ngModel)]="regionSelected" (change)="onRegionChange()">
           <ng-option *ngFor="let region of regions" [value]="region.key">{{region.value}}</ng-option>
         </ng-select>
-        <ion-input [(ngModel)]="topic" mode="ios" placeholder="Topic" class="inp-topic"></ion-input>
-        <ion-button color="primary" fill="solid" [disabled]="!canAnalyse()" (click)="analyse()">Analyse</ion-button>
       </ion-col>
-      <!-- <ion-col size="3" push="4" class="d-flex-middle-center">
-        <ion-input [(ngModel)]="topic" mode="ios" placeholder="Topic" class="inp-topic"></ion-input>
-      </ion-col> -->
-      <!-- <ion-col class="d-flex-middle-center">
-        <ng-select class="select-opts custom" placeholder="Topics">
-            <ng-option *ngFor="let region of regions" [value]="p">{{p}}</ng-option>
+      <ion-col size-md="2.5" size-xs="12" class="margin-5">
+        <ng-select class="select-region custom" placeholder="Topics *" [(ngModel)]="topicSelected">
+          <ng-option *ngFor="let topic of topics" [value]="topic.value">{{topic.value}}</ng-option>
         </ng-select>
-      </ion-col> -->
+      </ion-col>
+      <ion-col size-md="2.5" size-xs="12" class="margin-5">
+        <ng-select class="select-region custom" placeholder="Industry" [(ngModel)]="industrySelected">
+          <ng-option *ngFor="let industry of industries" [value]="industry.industry">{{industry.industry}}</ng-option>
+        </ng-select>
+      </ion-col>
+      <ion-col size-md="2.5" size-xs="12" class="margin-5">
+        <ion-input [(ngModel)]="search" mode="ios" placeholder="Search" class="inp-topic"></ion-input>
+      </ion-col>
+      <ion-col size-md="2" size-xs="12" class="margin-5">
+        <ion-button expand="block" color="primary" fill="solid" [disabled]="!canAnalyse()" (click)="analyse()">Analyse</ion-button>
+      </ion-col>
     </ion-row>
-    <ion-row class="h-50">
-      <ion-col>
-        <ion-card class="full-height">
+
+    <ion-row>
+      <ion-col size="12" class="ion-padding">
+        <ion-card class="card">
           <ion-card-title class="card-title">
-            Global Media
+            Annual GDP growth (percent change)
           </ion-card-title>
           <ion-card-content>
-            <div id="chart" *ngIf="occurrenceChart">  
+            <div *ngIf="!gdpChart">Select region for Annual GDP Growth & Inflataion rate</div>
+            <div id="gdpChart" class="full-width" *ngIf="gdpChart">  
+              <apx-chart 
+                [series]="gdpChart.series" 
+                [chart]="gdpChart.chart" 
+                [xaxis]="gdpChart.xaxis"  
+                [title]="gdpChart.title"
+                >
+              </apx-chart>
+            </div>  
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <ion-row class="h-50">
+      <ion-col size-md="6" size-xs="12" class="ion-padding">
+        <ion-card class="card" #cardWordContainer>
+          <ion-card-title class="card-title">
+            Keyphrases
+          </ion-card-title>
+          <ion-card-content>
+            <ion-spinner *ngIf="isLoadingKeyph"></ion-spinner>
+            <div *ngIf="wordData?.length == 0 && !isLoadingKeyph">Select region and enter topic for keyphrase extraction</div>
+            <div #wordCloudContainer [hidden]="wordData?.length == 0" class="div-chart"></div>  
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col size-md="6" size-xs="12" class="ion-padding">
+        <ion-card class="card">
+          <ion-card-title class="card-title">
+            Sentiment Analysis
+          </ion-card-title>
+          <ion-card-content>
+            <ion-spinner *ngIf="isLoadingSentmts"></ion-spinner>
+            <div *ngIf="!sentimentChart && !isLoadingSentmts">Select region and enter topic for the sentiment analysis</div>
+            <div id="sentimentChart" class="full-width" *ngIf="sentimentChart">  
               <apx-chart
-                [series]="occurrenceChart.series"
-                [chart]="occurrenceChart.chart"
-                [dataLabels]="occurrenceChart.dataLabels"
-                [plotOptions]="occurrenceChart.plotOptions"
-                [yaxis]="occurrenceChart.yaxis"
-                [xaxis]="occurrenceChart.xaxis"
-                [legend]="occurrenceChart.legend"
-                [colors]="occurrenceChart.colors"
-                [grid]="occurrenceChart.grid"
+                [series]="sentimentChart.series"
+                [chart]="sentimentChart.chart"
+                [dataLabels]="sentimentChart.dataLabels"
+                [plotOptions]="sentimentChart.plotOptions"
+                [yaxis]="sentimentChart.yaxis"
+                [xaxis]="sentimentChart.xaxis"
+                [legend]="sentimentChart.legend"
+                [colors]="sentimentChart.colors"
+                [grid]="sentimentChart.grid"
               ></apx-chart> 
             </div>  
           </ion-card-content>
         </ion-card>
       </ion-col>
-      <ion-col>
-        <ion-card class="full-height">
+    </ion-row>
+    
+    <ion-row class="h-50">
+      <ion-col size="12" class="ion-padding">
+        <ion-card class="card">
           <ion-card-title class="card-title">
             Global Insights
           </ion-card-title>
-          <ion-card-content>
+          <ion-card-content [ngClass]="globalInsights ? 'card-top' : ''">
+            <ion-spinner *ngIf="isLoadingInsights"></ion-spinner>
+            <div *ngIf="!globalInsights && !isLoadingInsights">Select region and enter topic for the insights</div>
             <div [innerHTML]="globalInsights"></div>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-    <ion-row class="h-50">
-      <ion-col>
-        <ion-card class="full-height">
-          <ion-card-title class="card-title">
-            Sentiment Analysis
-          </ion-card-title>
-          <ion-card-content class="d-flex-middle-center card-sentiment">
-            <input type="file" #fileInputRef id="fileInput" style="display: none" (change)="handleFileInput($event)" accept=".csv, .xlsx">
-            <ion-button size="small" type="button" (click)="uploadFile()" mode="ios" class="upload-button">Upload customer reviews</ion-button>
-            <!-- <div id="chart">  
-              <apx-chart  
-                [series]="bchartOptions.series"  
-                [chart]="bchartOptions.chart"  
-                [xaxis]="bchartOptions.xaxis"  
-                [yaxis]="bchartOptions.yaxis"  
-              ></apx-chart> 
-            </div>   -->
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-      <ion-col>
-        <ion-card class="full-height">
-          <ion-card-title class="card-title">
-            Insights 2
-          </ion-card-title>
-          <ion-card-content>
           </ion-card-content>
         </ion-card>
       </ion-col>

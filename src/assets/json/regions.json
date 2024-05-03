@@ -1,0 +1,138 @@
+[
+    {
+      "key": "en-AR",
+      "value": "Argentina"
+    },
+    {
+      "key": "en-AU",
+      "value": "Australia"
+    },
+    {
+      "key": "de-AT",
+      "value": "Austria"
+    },
+    {
+      "key": "nl-BE",
+      "value": "Dutch (Belgium)"
+    },
+    {
+      "key": "fr-BE",
+      "value": "French (Belgium)"
+    },
+    {
+      "key": "pt-BR",
+      "value": "Brazil"
+    },
+    {
+      "key": "en-CA",
+      "value": "Canada"
+    },
+    {
+      "key": "es-CL",
+      "value": "Chile"
+    },
+    {
+      "key": "zh-CN",
+      "value": "China"
+    },
+    {
+      "key": "da-DK",
+      "value": "Denmark"
+    },
+    {
+      "key": "fi-FI",
+      "value": "Finland"
+    },
+    {
+      "key": "fr-FR",
+      "value": "France"
+    },
+    {
+      "key": "de-DE",
+      "value": "Germany"
+    },
+    {
+      "key": "zh-HK",
+      "value": "Hong Kong"
+    },
+    {
+      "key": "en-IN",
+      "value": "India"
+    },
+    {
+      "key": "en-ID",
+      "value": "Indonesia"
+    },
+    {
+      "key": "it-IT",
+      "value": "Italy"
+    },
+    {
+      "key": "ja-JP",
+      "value": "Japan"
+    },
+    {
+      "key": "ko-KR",
+      "value": "South Korea"
+    },
+    {
+      "key": "en-MY",
+      "value": "Malaysia"
+    },
+    {
+      "key": "es-MX",
+      "value": "Mexico"
+    },
+    {
+      "key": "nl-NL",
+      "value": "Netherlands"
+    },
+    {
+      "key": "en-NZ",
+      "value": "New Zealand"
+    },
+    {
+      "key": "no-NO",
+      "value": "Norway"
+    },
+    {
+      "key": "pl-PL",
+      "value": "Poland"
+    },
+    {
+      "key": "en-PH",
+      "value": "Philippines"
+    },
+    {
+      "key": "ru-RU",
+      "value": "Russia"
+    },
+    {
+      "key": "en-ZA",
+      "value": "South Africa"
+    },
+    {
+      "key": "es-ES",
+      "value": "Spain"
+    },
+    {
+      "key": "sv-SE",
+      "value": "Sweden"
+    },
+    {
+      "key": "zh-TW",
+      "value": "Taiwan"
+    },
+    {
+      "key": "tr-TR",
+      "value": "Turkey"
+    },
+    {
+      "key": "en-GB",
+      "value": "United Kingdom"
+    },
+    {
+      "key": "en-US",
+      "value": "United States"
+    }
+]

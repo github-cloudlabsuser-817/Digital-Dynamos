@@ -1,9 +1,26 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>Configuration</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content>
+<div class="inner-content">
+  <ion-header class="heading">
+    <ion-toolbar>
+      <ion-title>Upload Dataset</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="onDismiss(false)">
+          <ion-icon name="close-circle-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
   
-</ion-content>
+  <div class="d-flex-align-center container">
+    <br/>
+    <br/>
+    <input type="file" #fileInputRef id="fileInput" style="display: none" (change)="handleFileInput($event)" accept=".docx,.txt">  
+    <div>Upload your dataset to generate insights</div>
+    <br/>
+    <ion-button size="small" type="button" (click)="uploadFile()" mode="ios" class="upload-button">Upload</ion-button>
+    <span class="file-name">{{ selectedFileName }}</span>  
+    <br/>
+    <ion-button size="small" type="button" (click)="generate()" mode="ios" class="upload-button" *ngIf="selectedFile">Generate</ion-button>
+    <br/>
+  </div>
+</div>
+

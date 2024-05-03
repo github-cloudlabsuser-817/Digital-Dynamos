@@ -1,0 +1,25 @@
+ion-header {
+    ion-toolbar {
+        // set background color
+        --background: var(--ion-color-primary);
+        // set icon/text color
+        --color: #ffffff;
+    }
+}
+.topic-input {
+    margin: 20px 20px 0 20px;
+    width: 310px;
+}
+.validation-error {
+    font-size: 10px;
+    color: red;
+    margin: 20px 20px 0 20px;
+}
+.save {
+    margin: 20px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+}

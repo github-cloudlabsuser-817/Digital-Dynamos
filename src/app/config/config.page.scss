@@ -1,0 +1,18 @@
+ion-header {
+    ion-toolbar {
+        // set background color
+        --background: var(--ion-color-primary);
+        // set icon/text color
+        --color: #ffffff;
+    }
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100px;
+    min-width: 350px;
+}
+.file-name {
+    font-size: 13px;
+    color: black;
+}

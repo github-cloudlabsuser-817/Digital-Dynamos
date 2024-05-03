@@ -1,0 +1,23 @@
+<ion-header class="heading">
+  <ion-toolbar>
+    <ion-title>Stratergies</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onDismiss()">
+        <ion-icon name="close-circle-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-list>
+    <ion-card *ngFor="let topic of topics">
+      <ion-card-header>
+        <ion-card-title>{{topic.value}}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        {{topic.description}}
+      </ion-card-content>
+    </ion-card>
+  </ion-list>
+</ion-content>

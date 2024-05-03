@@ -1,0 +1,93 @@
+[
+    {
+        "id": "T1",
+        "value": "Market entry",
+        "description": "The process of entering a new market, which can be informed by generative AI analysis of market data related to political and economic stability.",
+        "isGlobal": "true",
+        "sortOrder": 1
+    },
+    {
+        "id": "T2",
+        "value": "Product development",
+        "description": "The process of developing new or adapting existing products or services to meet the needs of different markets, which can be informed by generative AI analysis of consumer preferences and industry trends.",
+        "isGlobal": "true",
+        "sortOrder": 2
+    },
+    {
+        "id": "T3",
+        "value": "Public relations",
+        "description": "The process of maintaining and improving a brand or company's reputation through various communication channels, which can be informed by generative AI analysis of changes in public sentiment towards the brand or industry.",
+        "isGlobal": "true",
+        "sortOrder": 3
+    },
+    {
+        "id": "T4",
+        "value": "Investment decisions",
+        "description": "The process of deciding where to allocate financial resources, which can be informed by generative AI analysis of political and economic stability in different markets.",
+        "isGlobal": "true",
+        "sortOrder": 4
+    },
+    {
+        "id": "T5",
+        "value": "Risk management",
+        "description": "The process of identifying and assessing potential risks to business operations and developing strategies to mitigate those risks, which can be informed by generative AI analysis of changes in labor movements and public sentiment towards industries.",
+        "isGlobal": "true",
+        "sortOrder": 5
+    },
+    {
+        "id": "T6",
+        "value": "Expansion strategies",
+        "description": "The process of identifying potential opportunities for expansion into new markets or market segments, which can be informed by generative AI analysis of market data related to political and economic stability.",
+        "isGlobal": "true",
+        "sortOrder": 6
+    },
+    {
+        "id": "T7",
+        "value": "Talent acquisition and management",
+        "description": "The process of attracting, hiring, and retaining talented employees, which can be informed by generative AI analysis of labor movements and changes in labor laws and regulations.",
+        "isGlobal": "true",
+        "sortOrder": 7
+    },
+    {
+        "id": "T8",
+        "value": "Supply chain management",
+        "description": "The process of managing the flow of goods and services from suppliers to customers, which can be informed by generative AI analysis of changes in political stability and global economic trends.",
+        "isGlobal": "true",
+        "sortOrder": 8
+    },
+    {
+        "id": "T9",
+        "value": "Corporate social responsibility (CSR)",
+        "description": "The process of developing and implementing sustainable and ethical business practices that benefit society and the environment, which can be informed by generative AI analysis of public sentiment towards a company's CSR initiatives and changes in industry standards and regulations.",
+        "isGlobal": "true",
+        "sortOrder": 9
+    },
+    {
+        "id": "T10",
+        "value": "Brand reputation management",
+        "description": "The process of maintaining and improving a brand or company's reputation, which can be informed by generative AI analysis of changes in public sentiment towards the brand or industry.",
+        "isGlobal": "true",
+        "sortOrder": 10
+    },
+    {
+        "id": "T11",
+        "value": "Pricing strategies",
+        "description": "The process of setting prices for products or services, which can be informed by generative AI analysis of changes in economic stability and consumer demand.",
+        "isGlobal": "true",
+        "sortOrder": 11
+    },
+    {
+        "id": "T12",
+        "value": "Product diversification",
+        "description": "The process of developing new or adapting existing products or services to meet the needs of different markets, which can be informed by generative AI analysis of consumer preferences and industry trends.",
+        "isGlobal": "true",
+        "sortOrder": 12
+    },
+    {
+        "id": "T13",
+        "value": "Lobbying and advocacy",
+        "description": "The process of promoting or opposing legislation or regulations that affect a particular industry or company, which can be informed by generative AI analysis of changes in political stability and public sentiment towards certain industries.",
+        "isGlobal": "true",
+        "sortOrder": 13
+    }
+]

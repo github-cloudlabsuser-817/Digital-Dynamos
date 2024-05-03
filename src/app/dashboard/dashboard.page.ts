@@ -1,14 +1,21 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ModalController, NavController } from '@ionic/angular';
+import { DatePipe } from '@angular/common';  
 import { ConfigPage } from '../config/config.page';
 import { LoadingService } from '../providers/loading.service';
 import { environment } from 'src/environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-// import { saveAs } from 'file-saver';  
-import * as Papa from 'papaparse';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { forkJoin } from 'rxjs';
+import { MsalService } from '@azure/msal-angular';
+import { AlertService } from '../services/alert-service';
+import { TopicInfoPage } from '../topic-info/topic-info.page';
+import { AddTopicPage } from '../add-topic/add-topic.page';
+import { HttpService } from '../services/http-service';
+import * as d3 from 'd3';  
+import * as d3Cloud from 'd3-cloud';
+import * as Papa from 'papaparse';
 
 @Component({
   selector: 'app-dashboard',
@@ -16,158 +23,29 @@ import { forkJoin } from 'rxjs';
   styleUrls: ['./dashboard.page.scss'],
 })
 export class DashboardPage implements OnInit {
-  regions = [
-    {
-      key: 'en-AR',
-      value: 'Argentina',
-    },
-    {
-      key: 'en-AU',
-      value: 'Australia',
-    },
-    {
-      key: 'de-AT',
-      value: 'Austria',
-    },
-    {
-      key: 'nl-BE',
-      value: 'Belgium',
-    },
-    {
-      key: 'fr-BE',
-      value: 'Belgium',
-    },
-    {
-      key: 'pt-BR',
-      value: 'Brazil',
-    },
-    {
-      key: 'en-CA',
-      value: 'Canada',
-    },
-    {
-      key: 'fr-CA',
-      value: 'Canada',
-    },
-    {
-      key: 'es-CL',
-      value: 'Chile',
-    },
-    {
-      key: 'zh-CN',
-      value: 'China',
-    },
-    {
-      key: 'da-DK',
-      value: 'Denmark',
-    },
-    {
-      key: 'fi-FI',
-      value: 'Finland',
-    },
-    {
-      key: 'fr-FR',
-      value: 'France',
-    },
-    {
-      key: 'de-DE',
-      value: 'Germany',
-    },
-    {
-      key: 'zh-HK',
-      value: 'Hong Kong',
-    },
-    {
-      key: 'en-IN',
-      value: 'India',
-    },
-    {
-      key: 'en-ID',
-      value: 'Indonesia',
-    },
-    {
-      key: 'it-IT',
-      value: 'Italy',
-    },
-    {
-      key: 'ja-JP',
-      value: 'Japan',
-    },
-    {
-      key: 'ko-KR',
-      value: 'South Korea',
-    },
-    {
-      key: 'en-MY',
-      value: 'Malaysia',
-    },
-    {
-      key: 'es-MX',
-      value: 'Mexico',
-    },
-    {
-      key: 'nl-NL',
-      value: 'Netherlands',
-    },
-    {
-      key: 'en-NZ',
-      value: 'New Zealand',
-    },
-    {
-      key: 'no-NO',
-      value: 'Norway',
-    },
-    {
-      key: 'pl-PL',
-      value: 'Poland',
-    },
-    {
-      key: 'en-PH',
-      value: 'Philippines',
-    },
-    {
-      key: 'ru-RU',
-      value: 'Russia',
-    },
-    {
-      key: 'en-ZA',
-      value: 'South Africa',
-    },
-    {
-      key: 'es-ES',
-      value: 'Spain',
-    },
-    {
-      key: 'sv-SE',
-      value: 'Sweden',
-    },
-    {
-      key: 'zh-TW',
-      value: 'Taiwan',
-    },
-    {
-      key: 'tr-TR',
-      value: 'Turkey',
-    },
-    {
-      key: 'en-GB',
-      value: 'United Kingdom',
-    },
-    {
-      key: 'en-US',
-      value: 'United States',
-    },
-  ];
+  @ViewChild('wordCloudContainer', { static: false }) wordCloudContainer: ElementRef;  
+  @ViewChild('cardWordContainer', { read: ElementRef }) cardWordContainerRef: ElementRef;  
+  @ViewChild('fileInputRef', { static: false }) fileInputRef!: ElementRef;  
 
-  topic: string;
+  // Form fields
+  regions:any;
+  industries:any;
+  topics = [];
+  search: string;
+  industrySelected: string;
   regionSelected: string;
+  topicSelected: string;
+  
+  fromDate: string;
+  toDate: string;
 
-  globalData: any;
+  // News data
+  newsData: any;
   selectedFile: File; 
   
   // Chart objects
-  occurrenceChart: any;
-  occurrenceChartOpts = {
+  sentimentChart: any;
+  sentimentChartOpts = {
     series: [
       {
         name: "distibuted",
@@ -175,14 +53,11 @@ export class DashboardPage implements OnInit {
       }
     ],
     chart: {
-      height: 350,
+      height: 390,
+      width: '100%',
       type: "bar"
     },
-    colors: [
-      "#00A3EE",
-      "#1DA1F2",
-      "#FEB019"
-    ],
+    colors: ['#0f9e30', '#Ada8c9', "#E40909"],
     plotOptions: {
       bar: {
         columnWidth: "30px",
@@ -190,161 +65,285 @@ export class DashboardPage implements OnInit {
       }
     },
     dataLabels: {
-      enabled: true
+      enabled: false
     },
     legend: {
       show: false
     },
     xaxis: {
-      categories: [
-        "Bing",
-        "Twitter",
-        "Reddit"
-      ],
+      categories: ["Positive", "Neutral", "Negative"],
       labels: {
         style: {
-          colors: [
-            "#00A3EE",
-            "#1DA1F2",
-            "#FEB019"
-          ],
+          colors: ['#0f9e30', '#Ada8c9', "#E40909"],
           fontSize: "12px"
         }
       }
     }
   };
+  wordData = []; 
+  gdpChart:any;
+  gdpChartOpts = {  
+    series: [  
+      {  
+        name: 'Annual GDP growth (percent change)',  
+        data: []
+      },
+      {  
+        name: 'Annual average inflation (consumer prices) rate',  
+        data: []
+      }  
+    ],  
+    chart: {
+      height: 390,
+      width: '100%',
+      type: "area"
+    },
+    xaxis: {  
+      categories: [] 
+    },  
+    stroke: {
+      curve: "smooth"
+    },
+    title: {  
+      text: ''  
+    }  
+  }; 
+
+  // Gen AI Responses
   globalInsights: string;
+  sentiments: any;
+  keyPhrases = [];
+  positiveCount = 0;
+  negativeCount = 0;
+  neutralCount = 0;
+
+  // Loaders
+  isLoadingInsights = false;
+  isLoadingSentmts = false;
+  isLoadingKeyph = false;
+
   constructor(
     private navCtrl: NavController,
     private modalCtrl: ModalController,
     private loadingService: LoadingService,
-    private http: HttpClient
+    private http: HttpClient,
+    private datePipe: DatePipe,
+    private authService: MsalService, 
+    private alertService: AlertService,
+    private httpService: HttpService
   ) {
-    this.renderCharts();
+    this.initForm();
   }
 
-  renderCharts() {
-    // this.chartOptions = {
-    //   series: this.series,
-    //   labels: this.labels,
-    //   chart: {
-    //     height: 270,
-    //     type: 'pie'
-    //   },
-    //   responsive: [
-    //     {
-    //       breakpoint: 380,
-    //       options: {
-    //         chart: {
-    //           width: 200
-    //         },
-    //         legend: {
-    //           position: 'bottom'
-    //         }
-    //       }
-    //     }
-    //   ]
-    // };
-
-    // this.lchartOptions = {
-    //   series: this.lseries,
-    //   chart: {
-    //     type: 'line',
-    //     height: 255
-    //   },
-    //   xaxis: {
-    //     categories: this.lXLabels
-    //   },
-    //   yaxis: {
-    //     title: {
-    //       text: 'Value'
-    //     }
-    //   }
-    // };
-
-    // this.bchartOptions = {
-    //   series: this.bseries,
-    //   chart: {
-    //     height: 250,
-    //     type: 'bubble'
-    //   },
-    //   xaxis: {
-    //     tickAmount: 5
-    //   },
-    //   yaxis: {
-    //     tickAmount: 5
-    //   }
-    // };
-    // this.occurrenceChartOpts.series[0].data = [23, 73, 12]
-    // this.occurrenceChart = this.occurrenceChartOpts;
+  initForm() {
+    this.toDate = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
+    const sixMonthsAgoDate = new Date();  
+    sixMonthsAgoDate.setMonth(sixMonthsAgoDate.getMonth() - 3);  
+    this.fromDate = this.datePipe.transform(sixMonthsAgoDate, 'yyyy-MM-dd');
+    this.http.get('assets/json/regions.json').subscribe((regions) => {
+      this.regions = regions;
+    });
+    this.http.get('assets/json/industries.json').subscribe((industries) => {
+      this.industries = industries;
+    });
+    // this.getRegions();
+    this.getTopics();
+    this.getIndustries();
   }
-
 
   ngOnInit() {
-    
+    // let res = `Given the provided data and the news content, it is important to note that the decision for a Life science industry to engage in product development in India must consider various factors.
+    // 1. **Political Stability:**  
+    // - Political stability is crucial for any business venture. In India, the political environment has been relatively stable, with the ruling party having a strong mandate. However, there are instances of regional political instability that could impact business operations. For instance, news about French Greens' top candidate promoting "European pharmaceutical sovereignty" might hint at political trends that favor national production, which could influence India's political stance on foreign life science companies.  
+    // 2. **Economic Stability:**  
+    // - India has shown significant GDP growth over the years, even though there was a contraction in 2020 due to the COVID-19 pandemic. The bounce-back in 2021 and continued growth projections indicate economic resilience. However, the inflation rates provided also show volatility, which can impact the cost of business operations.   
+    // 3. *Labor Movements:*
+    // - India has a vast informal labor market that could provide cost-effective labor for product development but comes with risks such as lack of formal contracts and potential labor unrest. The news content doesn't provide direct insights into labor movements impacting the life science industry, but it is known that labor laws and movements in India are an essential factor to consider.  
+    // **GDP Growth and Income Inequality:**  
+    // - While GDP growth is a positive indicator, income inequality can lead to market segmentation and potential social unrest, which can impact a business's market and operations.   
+    // **Informal Labor Market:**  
+    // - The informal labor market in India is large, which can lead to challenges in regulatory compliance and labor rights, impacting the company's reputation and operations.  
+    // **Potential Risks and Challenges:**  
+    // - The company may face challenges related to intellectual property rights protection, as seen with Indian pharma giants pivoting to weight-loss medications and generic drugs production (News 12, 20, 22, 30).  
+    // - Competition from established players like Novo Nordisk and Eli Lilly in the obesity drug market is intense, as suggested by multiple news articles (News 1, 2, 6, 7, 10).  
+    // - Regulatory changes, such as those concerning digital markets (News 15), and the political climate around pharmaceutical sovereignty (News 16) could impact operations.  
+    // *Recommendations:*
+    // - Establish a strong legal team to navigate India's intellectual property and labor laws.  
+    // - Consider entering into partnerships or joint ventures with local firms to mitigate political and economic risks.  
+    // - Stay informed and adaptive to the regulatory changes in India's digital and pharmaceutical markets.  
+    // - Engage in corporate social responsibility initiatives to address income inequality and improve the company's image.  
+    // **Overall Score:**  
+    // - Considering the above factors, the overall score for the viability of a Life science industry on Product Development in India could be around 70%. This score reflects the potential for growth and the significant market size, counterbalanced by the risks associated with economic volatility, competition, and regulatory challenges.  
+    // The news articles provided do offer insights into the competition in the life science sector, particularly in the obesity drug market, and highlight the potential for growth in the pharmaceutical industry. However, they also underscore the importance of staying competitive in pricing and supply chain management (News 4, 8, 10). The articles suggest that while there is a demand for such products, companies must be prepared to navigate a dynamic market with strong competitors.`
+    // res = res.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    // res = res.replace(/\*(.*?)\*/g, "<strong>$1</strong>");
+    // res = res.replace(/(\d+\.)\s(.*?)/g, "<strong>$1</strong> $2");
+    // this.globalInsights = res.replace(/\n/g, "<br>");
   }
 
-  async config() {
-    const modal = await this.modalCtrl.create({
-      component: ConfigPage
-    });
-    modal.present();
-    modal.onDidDismiss().then(data => {
-      console.log(data);
-      if (data?.data) {
+  drawWordChart() {
 
-      }
-    });
+    this.wordData = this.wordData.slice(0, 50);
+    const colorScale = d3.scaleOrdinal()  
+      .domain([0, 50]) // Define the domain of values  
+      .range(['#cc33ff', '#33cc33', '#ff3300', '#0000ff', '#00cccc', '#237291', '#9d2j42', '#a2j4ld']); // Define the range of colors  
+
+    const cardElement = this.cardWordContainerRef.nativeElement as HTMLElement;  
+    const cardWidth = cardElement.offsetWidth - 20;
+    const cardHeight = cardElement.offsetHeight - 20;  
+
+    console.log('containerwidth', cardWidth);
+
+    const divChart = document.querySelector('.div-chart');  
+    const svgElement = divChart.querySelector('svg');  
+      
+    if (svgElement) {  
+      svgElement.remove();  
+    }
+
+    const wordCloudSvg = d3.select(this.wordCloudContainer.nativeElement)  
+      .append('svg')  
+      .attr('width', cardWidth)  
+      .attr('height', cardHeight);  
+
+    const layout = d3Cloud()  
+      .size([cardWidth, cardHeight])
+      .words(this.wordData)  
+      .padding(3)  
+      .rotate(() => (Math.random() * 2) * 0) // Random rotation  
+      .font('Arial')  
+      .fontSize((d) => d.size)  
+      .on('end', draw);  
+
+    layout.start();  
+
+    function draw(words) {  
+      wordCloudSvg  
+        .append('g')  
+        .attr('transform', `translate(${cardWidth/2},${cardHeight/2})`)  
+        .selectAll('text')  
+        .data(words)  
+        .enter()  
+        .append('text')  
+        .style('font-size', (d) => d.size + 'px')  
+        .style('fill', (d) => colorScale(d.value)) // Assign color based on value  
+        .attr('text-anchor', 'middle')  
+        .attr('transform', (d) => `translate(${d.x},${d.y})rotate(${d.rotate})`)  
+        .text((d) => d.text);  
+    }  
+  }
+
+  async config() {  
+    const fileInput = document.getElementById('fileInput') as HTMLInputElement;  
+    fileInput.click();  
+
+    // const modal = await this.modalCtrl.create({
+    //   component: ConfigPage,
+    //   cssClass: 'auto-height'
+    // });
+    // modal.present();
+    // const { data, role } = await modal.onWillDismiss();
+    // if (data) {
+    //   console.log("File", role)
+    //   let file = role;
+    //   this.generateInsights(file);
+    // }
+  }
+  
+  handleFileInput(event: any) {  
+    this.selectedFile = event.target.files[0];
+    Papa.parse(this.selectedFile, {  
+      header: true,  
+      complete: (results) => {  
+        console.log('Parsed CSV:', results.data);
+        this.newsData = results.data;
+        this.generateGraphAndInsights(this.newsData);
+        this.fileInputRef.nativeElement.value = '';
+      },  
+      error: (error) => {  
+        console.error('Error parsing CSV:', error);  
+        this.fileInputRef.nativeElement.value = ''; 
+        // Handle the error  
+      }  
+    });   
   }
 
   logout() {
-    localStorage.setItem('isLoggedIn', 'false');
-    this.navCtrl.navigateRoot('/login');
+    this.authService.logoutRedirect();
   }
 
   canAnalyse() {
-    return this.regionSelected?.length > 0 && this.topic?.length > 0;
-    // return this.topic?.length > 0;
+    return this.regionSelected?.length > 0 && this.topicSelected?.length > 0;
+    // return this.search?.length > 0;
   }
 
   analyse() {
     this.getGlobalMediaData();
   }
 
-  handleFileInput(event: any) {  
-    this.selectedFile = event.target.files[0] as File;
-    const formData: FormData = new FormData();  
-    formData.append('file', this.selectedFile, this.selectedFile.name);  
-    
-    const params = { 'query': 'can you analyse the market entry, product development and political stability from the data provided?' }
-    const headers = {
-      'openai-key': environment.promptAPIKey,
-      'Content-Type': 'application/json'
+  async onRegionChange() {
+    this.gdpChart = undefined;
+    if(!this.regionSelected)
+      return;
+
+    const gdpFile = '../../assets/gdp/world_gdp_data.csv';
+    const inflationFile = '../../assets/gdp/global_inflation_data.csv';
+
+    let gdpData, inflationData;
+
+    try {
+      gdpData = await this.parseCSV(gdpFile);
+    } catch(e) {
+      console.log(e);
     }
-    const options = { headers: headers, params: params };
-
-    this.http.post(environment.promptAPIUrl, formData, options).subscribe(
-      (response) => {  
-        console.log('CSV file uploaded successfully', response);  
-      },  
-      (error) => {  
-        console.error('Error uploading CSV file:', error);  
-      }  
-    );  
+    try {
+      inflationData = await this.parseCSV(inflationFile);
+    } catch(e) {
+      console.log(e);
+    }
+    if(gdpData?.length >=1 && inflationData?.length >= 1) {
+      this.gdpChartOpts.xaxis.categories = gdpData[0]; //header
+      this.gdpChartOpts.series[0].data = gdpData[1]; // gdp-data
+      this.gdpChartOpts.series[1].data = inflationData[1]; // inflation-data
+      this.gdpChartOpts.title.text = this.getRegionText();
+      this.gdpChart = Object.assign({}, this.gdpChartOpts);
+    }
+  }
+  
+  parseCSV(filename): Promise<any> {  
+    return new Promise((resolve, reject) => {  
+      const regionText = this.getRegionText();  
+      console.log("Region -> ", regionText);
+      const valueToMatch = regionText;  
     
-  }
+      this.http.get(filename, { responseType: 'text' })  
+        .subscribe(data => {  
+          Papa.parse(data, {  
+            complete: (results) => {  
+              const csvData = results.data;  
+              let headerRow = csvData[0];  
+              let matchedRow = csvData.find(row => row[0] && row[0].trim() === valueToMatch); // Assuming the country_name column is the first column (index 0)  
+    
+              if (headerRow && matchedRow) {  
+                headerRow = headerRow.slice(32);  
+                matchedRow = matchedRow.slice(32);  
+                console.log('Header Row:', headerRow);  
+                console.log('Matched Row:', matchedRow);  
+                resolve([headerRow, matchedRow]);  
+              } else {  
+                reject(new Error('Matching row not found.'));  
+              }  
+            }  
+          });  
+      }, error => {  
+        reject(error);  
+      });  
+    });  
+  }  
 
-  uploadFile() {  
-    const fileInput = document.getElementById('fileInput') as HTMLInputElement;  
-    fileInput.click();  
-  }
-
-  generateAndUploadCSV(): void {
-    this.globalData.splice(0, 0, "Content");
-    const csv = Papa.unparse(this.globalData.map((value) => [value]));
-
-    console.log("csv", csv);
-
+  generateCSV() {
+    let data = Object.assign([], this.newsData);
+    const csv = Papa.unparse([['#', 'title', 'description'], ...data.map((news, index) => [index+1, news.title, news.description])]);  
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');  
     const url = URL.createObjectURL(blob);  
@@ -354,8 +353,24 @@ export class DashboardPage implements OnInit {
     document.body.appendChild(link);  
     link.click();  
     document.body.removeChild(link); 
+    return csv;
+  }
 
+  ngAfterViewInit() {  
+    // Access the wordCloudContainer element here  
+    if (this.wordCloudContainer && this.wordData.length > 0) {  
+      this.drawWordChart();
+    }  
+  }
+  generateGraphAndInsights(csv) {
+    this.generateInsights(csv);
+    this.generateKeyPhrases(csv);
+    this.generateSentiments(csv);
+  }
+
+  generateInsights(csv) {
     this.loadingService.present('insights', 'Generating insights...');
+    this.isLoadingInsights = true;
     const headers = new HttpHeaders({  
       'api-key': environment.genaiApiKey,
       'Content-Type': 'application/json'
@@ -366,129 +381,270 @@ export class DashboardPage implements OnInit {
         "messages": [
             {
                 "role": "system",
-                "content": "As an AI Chat bot understand the prompt and analyse the person or a product and provide me the insights"
-            },
-            {
-                "role": "user",
-                // "content": `As an AI chat bot understand the topic provided (Person or Company or Product or Industry) and analyse the content given and provide me the insights accordingly. Market Entry: Product Development: Public Relations: from the content below.`
-                "content": `Based on an analysis of political stability, economic stability, and labor movements in ${this.regionSelected}, determine whether it would be a viable decision for a company to enter the market in ${this.regionSelected}. Provide reasons for your answer and suggest any potential risks or challenges the company may face in terms of political stability: economic stability: and labor movements`
+                "content": "As an AI Chat bot understand the prompt and analyse the news provided along with GDP Growth and Inflation rate and provide the insights"
             },
             {
               "role": "user",
               "content": csv
-            }
+            },
+            {
+              "role": "user",
+              "content": `GDP Growth and Inflation rate by years as follows, Years:${this.gdpChartOpts.xaxis.categories}, GDP Growth:${this.gdpChartOpts.series[0].data} Inflation Rate:${this.gdpChartOpts.series[1].data}`
+            },
+            {
+                "role": "user",
+                "content": `Based on an analysis of political stability, economic stability, and labor movements in ${this.getRegionText()}, determine whether it would be a viable decision for a ${this.industrySelected} industry on ${this.topicSelected} in ${this.getRegionText()}. Provide reasons for your answer and suggest any potential risks or challenges the company may face in terms of political stability: economic stability: by considering factors such as GDP growth: income inequality: and the informal labor market: labor movements, recommendations and overall good to go score out of 100%`
+            },
         ],
-        "max_tokens": 2000,
-        "temperature": 0.01,
-        "frequency_penalty": 0,
-        "presence_penalty": 0,
-        "top_p": 0.95,
-        "stop": null
+        "max_tokens": 800,
+        "temperature": 0.7,
+        "top_p": 0.95
     };
     this.http.post(environment.genaiApiUrl, content, options)  
       .subscribe((data:any) => {  
       // Handle the success response  
       this.loadingService.dismiss('insights');
       console.log(data);
+      this.isLoadingInsights = false;
       if(data && data.choices && data.choices.length > 0) {
         let res = data.choices[0].message.content;
+        res = res.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+        res = res.replace(/\*(.*?)\*/g, "<strong>$1</strong>");
+        res = res.replace(/(\d+\.)\s(.*?)/g, "<strong>$1</strong> $2");
         this.globalInsights = res.replace(/\n/g, "<br>");
       }
     }, (error) => {  
       // Handle the error response  
       console.log(error);  
+      this.isLoadingInsights = false;
       this.loadingService.dismiss('insights');
     });
-
-    // const formData: FormData = new FormData();  
-    // formData.append('file', blob, 'data.csv');  
-
-    // this.http.post('your-upload-url', formData).subscribe(  
-    //   (response) => {  
-    //     console.log('CSV file uploaded successfully');  
-    //   },  
-    //   (error) => {  
-    //     console.error('Error uploading CSV file:', error);  
-    //   }  
-    // );  
   }
 
-  getGlobalMediaData() {
-    this.loadingService.present('news');
+  prepareDocs(csv) {
+    let docs = [];
+    let allNews = Object.assign([], csv);
+    if (allNews.length > 11) {  
+      allNews = allNews.slice(1, 11);
+    } else {  
+      allNews = allNews;  
+    }
+    allNews.forEach((news, index) => { 
+      docs.push({
+        id: index,
+        language: 'en',
+        text: news.title + " - " + news.description
+      });
+    });
+    return docs;
+  }
 
-    const bingParams = { 'q': this.topic, 'mkt': this.regionSelected, 'count': 200 }
-    const bingHeaders = { 'Ocp-Apim-Subscription-Key': environment.bingAPIKey }
-    const bingOptions = { headers: bingHeaders, params: bingParams };
-    const bingRequest = this.http.get(environment.bingAPIUrl, bingOptions).pipe(  
+  generateSentiments(csv) {
+    // this.loadingService.present('sentiments', 'Generating sentiments...');
+    let docs = this.prepareDocs(csv);
+    this.isLoadingSentmts = true;
+
+    const headers = new HttpHeaders({  
+      'Ocp-Apim-Subscription-Key': environment.langServiceAPIKey,
+      'Content-Type': 'application/json'
+    });  
+    
+    const options = { headers: headers };
+    const content = {
+      "kind": "SentimentAnalysis",
+      "parameters": {
+        "modelVersion": "latest"
+      },
+      "analysisInput": {
+        "documents": docs
+      }
+    }
+    console.log("Docs", content);
+    const url = environment.langServiceAPIUrl + 'language/:analyze-text?api-version=2023-04-15-preview';
+    this.http.post(url, content, options)
+      .subscribe((response:any) => {  
+      // Handle the success response  
+      // this.loadingService.dismiss('sentiments');
+      console.log(response);
+      this.isLoadingSentmts = false;
+      if(response && response.results && response.results.documents) {
+        const documents = response.results.documents;
+        documents.forEach((document) => {  
+          const sentiment = document.sentiment;  
+          if (sentiment === 'positive') {  
+            this.positiveCount++;  
+          } else if (sentiment === 'negative') {  
+            this.negativeCount++;  
+          } else if (sentiment === 'neutral') {  
+            this.neutralCount++;  
+          }  
+        });  
+        let data = [this.positiveCount, this.neutralCount, this.negativeCount];
+        this.sentimentChart = this.sentimentChartOpts;
+        this.sentimentChartOpts.series[0].data = data;
+        this.sentimentChartOpts.chart.height = this.wordCloudContainer.nativeElement.offsetHeight;
+      }
+    }, (error) => {  
+      // Handle the error response  
+      console.log(error);  
+      this.isLoadingSentmts = false;
+      // this.loadingService.dismiss('sentiments');
+    });
+  }
+
+  generateKeyPhrases(csv) {
+    let docs = this.prepareDocs(csv);
+    this.isLoadingKeyph = true;
+    const headers = new HttpHeaders({  
+      'Ocp-Apim-Subscription-Key': environment.langServiceAPIKey,
+      'Content-Type': 'application/json'
+    });  
+    
+    const options = { headers: headers };
+    const content = {
+      "kind": "KeyPhraseExtraction",
+      "parameters": {
+        "modelVersion": "latest"
+      },
+      "analysisInput": {
+        "documents": docs
+      }
+    }
+    console.log("keyphrase Docs", content);
+    const url = environment.langServiceAPIUrl + 'language/:analyze-text?api-version=2023-04-15-preview';
+    this.http.post(url, content, options)
+      .subscribe((data:any) => {  
+      // Handle the success response  
+      // this.loadingService.dismiss('keyphrase');
+      console.log(data);
+      this.isLoadingKeyph = false;
+      if(data && data.results && data.results.documents) {
+        const documents = data.results.documents;
+        documents.forEach((document) => {  
+          const keyPhrases = document.keyPhrases;  
+          this.keyPhrases.push(...keyPhrases);
+        });
+        this.wordData = [];
+        this.keyPhrases.forEach((phrase) => {
+          this.wordData.push({ text: phrase, size: Math.floor(Math.random() * (16 - 10) + 10), value: Math.floor(Math.random() * (20 - 10) + 10) });
+        });
+        console.log('word data', this.wordData);
+        this.drawWordChart();
+      }
+    }, (error) => {  
+      // Handle the error response  
+      console.log(error);  
+      this.isLoadingKeyph = false;
+    });
+  }
+
+  getBingRequestByTopic(topic) {
+    const params = { 'q': topic, 'mkt': this.regionSelected, 'count': 50 } // 'freshness': `${this.fromDate}`
+    const headers = { 'Ocp-Apim-Subscription-Key': environment.bingAPIKey }
+    const options = { headers: headers, params: params };
+    const request = this.http.get(environment.bingAPIUrl, options).pipe(  
       catchError((error) => {  
         console.error('Bing request failed:', error);  
         return of(null); // Return a default value or null for the failed request  
       })  
     );
+    return request;
+  }
 
-    // const twitterParams = { 'query': this.topic }
+  getNewsRequestByTopic(topic) {
+    const q = `${topic}-in-${this.getRegionText()}`;
+    const params = { 'q': q, 'apiKey': environment.newsAPIKey, searchIn: 'title,description'}
+    const options = { params: params };
+    const request = this.http.get(environment.newsAPIUrl, options).pipe(  
+      catchError((error) => {  
+        console.error('News API request failed:', error);  
+        return of(null); // Return a default value or null for the failed request  
+      })  
+    );
+    return request;
+  }
+  getGlobalMediaData() {
+    this.loadingService.present('news', 'Getting global media data...');
+    let topicBingReq, topicReq;
+    let arrRequests = [];
+
+    if(this.search?.length > 0) {
+      topicBingReq = this.getBingRequestByTopic(this.search);
+      topicReq = this.getNewsRequestByTopic(this.search);
+      arrRequests = [topicBingReq, topicReq];
+    }
+    const polStabilityBingReq = this.getBingRequestByTopic('debates');
+    const polStabilityReq = this.getNewsRequestByTopic('debates');
+    const econStabilityBingReq = this.getBingRequestByTopic('economics');
+    const econStabilityReq = this.getNewsRequestByTopic('economics');
+    const labourMovBingReq = this.getBingRequestByTopic('employment');
+    const labourMovReq = this.getNewsRequestByTopic('employment');
+
+    arrRequests = arrRequests.concat([polStabilityBingReq, polStabilityReq, econStabilityBingReq, econStabilityReq, labourMovBingReq, labourMovBingReq]);
+
+    // const twitterParams = { 'query': this.search }
     // const twitterHeaders = {
     //   'X-RapidAPI-Key': environment.twitterAPIKey,
     //   'X-RapidAPI-Host': environment.twitterAPIHost
     // }
     // const twitterOptions = { headers: twitterHeaders, params: twitterParams };
-    // const twitterRequest = this.http.get(environment.twitterAPIUrl, twitterOptions).pipe(  
+    // const twitterReq = this.http.get(environment.twitterAPIUrl, twitterOptions).pipe(  
     //   catchError((error) => {  
     //     console.error('Twitter request failed:', error);  
     //     return of(null); // Return a default value or null for the failed request  
     //   })  
     // );
 
-    // const redditParams = { 'query': this.topic }
+    // const redditParams = { 'query': this.search }
     // const redditHeaders = {
     //   'X-RapidAPI-Key': environment.redditAPIKey,
     //   'X-RapidAPI-Host': environment.redditHost
     // }
     // const redditOptions = { headers: redditHeaders, params: redditParams };
-    // const redditRequest = this.http.get(environment.redditAPIUrl, redditOptions).pipe(
+    // const redditReq = this.http.get(environment.redditAPIUrl, redditOptions).pipe(
     //   catchError((error) => {
     //     console.error('linkedin request failed:', error);
     //     return of(null); // Return a default value or null for the failed request  
     //   })
     // );
 
-    // const instaParams = { 'query': this.topic }
+    // const instaParams = { 'query': this.search }
     // const instaHeaders = {
     //   'X-RapidAPI-Key': environment.instagramAPIKey,
     //   'X-RapidAPI-Host': environment.instagramAPIHost
     // }
     // const instaOptions = { headers: instaHeaders, params: instaParams };
-    // const instaRequest = this.http.get(environment.instagramAPIUrl, instaOptions).pipe(  
+    // const instaReq = this.http.get(environment.instagramAPIUrl, instaOptions).pipe(  
     //   catchError((error) => {  
     //     console.error('Instagram request failed:', error);  
     //     return of(null); // Return a default value or null for the failed request  
     //   })  
     // );
 
-    // const linkedInParams = { 'query': this.topic }
+    // const linkedInParams = { 'query': this.search }
     // const linkedInHeaders = {
     //   'X-RapidAPI-Key': environment.linkedInAPIKey,
     //   'X-RapidAPI-Host': environment.linkedInHost
     // }
     // const linkedInOptions = { headers: linkedInHeaders, params: linkedInParams };
-    // const linkedInRequest = this.http.get(environment.linkedInAPIUrl, linkedInOptions).pipe(  
+    // const linkedInReq = this.http.get(environment.linkedInAPIUrl, linkedInOptions).pipe(  
     //   catchError((error) => {  
     //     console.error('linkedin request failed:', error);  
     //     return of(null); // Return a default value or null for the failed request  
     //   })  
     // );
 
-    forkJoin([
-      bingRequest, 
-      // twitterRequest, 
-      // redditRequest,
-      // instaRequest,
-      // linkedInRequest,
-    ]).subscribe(
+    forkJoin(arrRequests).subscribe(
       (responses) => {
         this.loadingService.dismiss('news');
         this.processResponses(responses);
-        this.generateAndUploadCSV();
+        if(this.newsData && this.newsData.length > 0) {
+           let csv = this.generateCSV();
+           this.generateGraphAndInsights(csv);
+          // this.generateAndUploadXlsx();
+        } else {
+          this.alertService.presentAlert('Search Term Not Found', 'No data found for the given search term and region. Try with a different search term or region');
+        }
       },
       (error) => {
         this.loadingService.dismiss('news');
@@ -499,25 +655,28 @@ export class DashboardPage implements OnInit {
   }
 
   processResponses(responses) {
-    const series = [];
+    this.newsData = [];
 
-    this.globalData = [];
-
-    //bing news
-    if(responses[0] && responses[0].value) {
-      let bingnews = responses[0].value;
-      let arr = bingnews.map((news) => news.description);
-      this.globalData = arr;
-      series.push({x: 'Bing', y: arr.length});
-    } else {
-      series.push({x: 'Bing', y: 0});
-    }
+    responses.forEach(response => {
+      if(response !==null && response?.value || response?.articles) {
+        let articles = response.value || response.articles;
+        let arr = articles.map((news) => {
+          let title = news.name || news.title;
+          return {
+            title: title === 'string' ? title.replace(/[^\w\s]/gi, '') : title,
+            description: news.description === 'string' ? news.description.replace(/[^\w\s]/gi, '') : news.description
+          }
+        });
+        this.newsData = this.newsData.concat(arr);
+      }
+    });
+    this.newsData = this.newsData.filter(record => record && !record.title?.includes("[Removed]") && !record.description?.includes("[Removed]"));
 
     // //twitter posts
     // if(responses[1] && responses[1].timeline) {
     //   let posts = responses[1].timeline;
     //   let arr = posts.map((post) => post.text)
-    //   this.globalData = this.globalData.concat(arr);
+    //   this.newsData = this.newsData.concat(arr);
     //   series.push({x: 'Twitter', y: arr.length});
     // } else {
     //   series.push({x: 'Twitter', y: 0});
@@ -527,7 +686,7 @@ export class DashboardPage implements OnInit {
     // if(responses[2] && responses[2].data) {
     //   let posts = responses[2].data;
     //   let arr = posts.map((post) => post.title)
-    //   this.globalData = this.globalData.concat(arr);
+    //   this.newsData = this.newsData.concat(arr);
     //   series.push({x: 'Reddit', y: arr.length});
     // } else {
     //   series.push({x: 'Reddit', y: 0});
@@ -537,9 +696,78 @@ export class DashboardPage implements OnInit {
     // if(responses[3] && responses[3].data) {
     //   let posts = responses[3].data;
     //   let arr = posts.map((post) => post.text)
-    //   this.globalData.concat(arr);
+    //   this.newsData.concat(arr);
     // }
-    this.occurrenceChartOpts.series[0].data = series;
-    this.occurrenceChart = this.occurrenceChartOpts;
+  }
+  getRegionText() {
+    if(this.regionSelected)
+      return this.regions.filter(region => region.key === this.regionSelected)[0].value;
+    else '';
+  }
+
+  getRegions() {
+    let url = "https://restcountries.com/v3.1/all?fields=cca2,name";
+    this.httpService.httpGetApi(url).subscribe(res => {
+      res.forEach(country => this.regions.push({ "key": country.cca2, "value": country.name.common }));
+      this.regions.sort((a, b) => a.value.localeCompare(b.value));
+      console.log(this.regions);
+    }, err => {
+      console.error('Error:', err);
+    });
+  }
+
+  getIndustries() {
+    let url = "assets/json/industries.json";
+    this.httpService.httpGetApi(url).subscribe(res => {
+      this.industries = res;
+      this.industries.sort((a, b) => a.sortOrder - b.sortOrder);
+    }, err => {
+      console.error('Error:', err);
+    });
+  }
+  
+  getTopics() {
+    if (localStorage.getItem('topics')) {
+      this.topics = JSON.parse(localStorage.getItem('topics'));
+      this.topics.sort((a, b) => a.sortOrder - b.industry);
+      console.log("from localstorage");
+    } else {
+      let url = "assets/json/topics.json";
+      this.httpService.httpGetApi(url).subscribe(res => {
+        this.topics = res;
+        localStorage.setItem('topics', JSON.stringify(this.topics));
+        this.topics.sort((a, b) => a.sortOrder - b.industry);
+        console.log("from json");
+      }, err => {
+        console.error('Error:', err);
+      });
+    }
+  }
+  
+  async onAddTopic() {
+    const modal = await this.modalCtrl.create({
+      component: AddTopicPage,
+      cssClass: 'auto-height',
+      componentProps: {
+        topics: this.topics
+      },
+    });
+    modal.present();
+    const { data, role } = await modal.onWillDismiss();
+    if (data) {
+      this.getTopics();
+    }
+  }
+
+  async onKnowMore() {
+    const modal = await this.modalCtrl.create({
+      component: TopicInfoPage,
+      cssClass: 'topic-info-modal',
+      componentProps: {
+        topics: this.topics
+      }
+    });
+    modal.present();
+    const { data, role } = await modal.onWillDismiss();
   }
 }

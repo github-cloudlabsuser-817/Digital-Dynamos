@@ -1,0 +1,107 @@
+[  
+    {  
+        "id": "I0",  
+        "industry": "Life Sciences",  
+        "sortOrder": 0  
+    },
+    {  
+        "id": "I10",  
+        "industry": "Healthcare",  
+        "sortOrder": 1  
+    },  
+    {  
+        "id": "I1",  
+        "industry": "Agriculture",  
+        "sortOrder": 2  
+    },  
+    {  
+        "id": "I3",  
+        "industry": "Banking and finance",  
+        "sortOrder": 3  
+    },  
+    {  
+        "id": "I6",  
+        "industry": "Energy and utilities",  
+        "sortOrder": 4  
+    },  
+    {  
+        "id": "I7",  
+        "industry": "Entertainment and media",  
+        "sortOrder": 5  
+    },  
+    {  
+        "id": "I2",  
+        "industry": "Automotive",  
+        "sortOrder": 6  
+    },  
+    {  
+        "id": "I4",  
+        "industry": "Construction",  
+        "sortOrder": 7  
+    },  
+    {  
+        "id": "I5",  
+        "industry": "Education",  
+        "sortOrder": 8  
+    },  
+    {  
+        "id": "I8",  
+        "industry": "Fashion and beauty",  
+        "sortOrder": 9  
+    },  
+    {  
+        "id": "I9",  
+        "industry": "Food and beverage",  
+        "sortOrder": 10  
+    },  
+    {  
+        "id": "I11",  
+        "industry": "Hospitality and tourism",  
+        "sortOrder": 11  
+    },  
+    {  
+        "id": "I12",  
+        "industry": "Information technology",  
+        "sortOrder": 12  
+    },  
+    {  
+        "id": "I13",  
+        "industry": "Manufacturing",  
+        "sortOrder": 13  
+    },  
+    {  
+        "id": "I14",  
+        "industry": "Retail",  
+        "sortOrder": 14  
+    },  
+    {  
+        "id": "I15",  
+        "industry": "Telecommunications",  
+        "sortOrder": 15  
+    },  
+    {  
+        "id": "I16",  
+        "industry": "Transportation and logistics",  
+        "sortOrder": 16  
+    },  
+    {  
+        "id": "I17",  
+        "industry": "Aerospace and defense",  
+        "sortOrder": 17  
+    },  
+    {  
+        "id": "I18",  
+        "industry": "Chemicals",  
+        "sortOrder": 18  
+    },  
+    {  
+        "id": "I19",  
+        "industry": "Mining and metals",  
+        "sortOrder": 19  
+    },  
+    {  
+        "id": "I20",  
+        "industry": "Real estate and property development",  
+        "sortOrder": 20  
+    }  
+]  

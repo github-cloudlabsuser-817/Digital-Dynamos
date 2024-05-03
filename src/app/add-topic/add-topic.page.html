@@ -1,0 +1,25 @@
+<div class="inner-content">
+  <ion-header class="heading">
+    <ion-toolbar>
+      <ion-title>Topic Details</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="onDismiss(false)">
+          <ion-icon name="close-circle-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+  
+  <div class="d-flex-align-center container">
+    <ion-input [(ngModel)]="topicName" class="topic-input" label="Topic name" label-placement="floating"
+      fill="outline"></ion-input>
+    <span class="validation-error" *ngIf="!isFormValid">Topic name is
+      required.</span>
+    <ion-input [(ngModel)]="topicDescription" class="topic-input" label="Topic description" label-placement="floating"
+      fill="outline"></ion-input>
+    <div class="d-flex-justify-center save">
+      <ion-button expand="block" class="select-region" color="primary" fill="solid" (click)="onSave()">Save</ion-button>
+    </div>
+  </div>
+</div>
+
