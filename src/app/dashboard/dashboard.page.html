@@ -45,67 +45,84 @@
     </ion-row>
 
     <ion-row>
-      <ion-col size="12" class="ion-padding">
-        <ion-card class="card">
+      <ion-col size="6" class="ion-padding">
+        <ion-row>
+          <ion-card class="card">
+            <ion-card-title class="card-title">
+              Annual GDP growth (percent change)
+            </ion-card-title>
+            <ion-card-content>
+              <div *ngIf="!gdpChart">Select region for Annual GDP Growth & Inflataion rate</div>
+              <div id="gdpChart" class="full-width" *ngIf="gdpChart">  
+                <apx-chart 
+                  [series]="gdpChart.series" 
+                  [chart]="gdpChart.chart" 
+                  [xaxis]="gdpChart.xaxis"  
+                  [title]="gdpChart.title"
+                  >
+                </apx-chart>
+              </div>  
+            </ion-card-content>
+          </ion-card>
+        </ion-row>
+        <br/>
+        <ion-row>
+          <ion-card class="card" #cardWordContainer>
+            <ion-card-title class="card-title">
+              Keyphrases
+            </ion-card-title>
+            <ion-card-content>
+              <ion-spinner *ngIf="isLoadingKeyph"></ion-spinner>
+              <div *ngIf="wordData?.length == 0 && !isLoadingKeyph">Select region and enter topic for keyphrase extraction</div>
+              <div #wordCloudContainer [hidden]="wordData?.length == 0" class="div-chart"></div>  
+            </ion-card-content>
+          </ion-card>
+        </ion-row>
+        <br/>
+        <ion-row>
+          <ion-card class="card">
+            <ion-card-title class="card-title">
+              Sentiment Analysis
+            </ion-card-title>
+            <ion-card-content>
+              <ion-spinner *ngIf="isLoadingSentmts"></ion-spinner>
+              <div *ngIf="!sentimentChart && !isLoadingSentmts">Select region and enter topic for the sentiment analysis</div>
+              <div id="sentimentChart" class="full-width" *ngIf="sentimentChart">  
+                <apx-chart
+                  [series]="sentimentChart.series"
+                  [chart]="sentimentChart.chart"
+                  [dataLabels]="sentimentChart.dataLabels"
+                  [plotOptions]="sentimentChart.plotOptions"
+                  [yaxis]="sentimentChart.yaxis"
+                  [xaxis]="sentimentChart.xaxis"
+                  [legend]="sentimentChart.legend"
+                  [colors]="sentimentChart.colors"
+                  [grid]="sentimentChart.grid"
+                ></apx-chart> 
+              </div>  
+            </ion-card-content>
+          </ion-card>
+        </ion-row>
+      </ion-col>
+      <ion-col size="6" class="ion-padding">
+        <ion-card class="card card-insights">
           <ion-card-title class="card-title">
-            Annual GDP growth (percent change)
+            Global Insights
           </ion-card-title>
-          <ion-card-content>
-            <div *ngIf="!gdpChart">Select region for Annual GDP Growth & Inflataion rate</div>
-            <div id="gdpChart" class="full-width" *ngIf="gdpChart">  
-              <apx-chart 
-                [series]="gdpChart.series" 
-                [chart]="gdpChart.chart" 
-                [xaxis]="gdpChart.xaxis"  
-                [title]="gdpChart.title"
-                >
-              </apx-chart>
-            </div>  
+          <ion-card-content [ngClass]="globalInsights ? 'card-top' : ''">
+            <ion-spinner *ngIf="isLoadingInsights"></ion-spinner>
+            <div *ngIf="!globalInsights && !isLoadingInsights">Select region and enter topic for the insights</div>
+            <div [innerHTML]="globalInsights"></div>
           </ion-card-content>
         </ion-card>
       </ion-col>
     </ion-row>
-
+<!-- 
     <ion-row class="h-50">
-      <ion-col size-md="6" size-xs="12" class="ion-padding">
-        <ion-card class="card" #cardWordContainer>
-          <ion-card-title class="card-title">
-            Keyphrases
-          </ion-card-title>
-          <ion-card-content>
-            <ion-spinner *ngIf="isLoadingKeyph"></ion-spinner>
-            <div *ngIf="wordData?.length == 0 && !isLoadingKeyph">Select region and enter topic for keyphrase extraction</div>
-            <div #wordCloudContainer [hidden]="wordData?.length == 0" class="div-chart"></div>  
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-      <ion-col size-md="6" size-xs="12" class="ion-padding">
-        <ion-card class="card">
-          <ion-card-title class="card-title">
-            Sentiment Analysis
-          </ion-card-title>
-          <ion-card-content>
-            <ion-spinner *ngIf="isLoadingSentmts"></ion-spinner>
-            <div *ngIf="!sentimentChart && !isLoadingSentmts">Select region and enter topic for the sentiment analysis</div>
-            <div id="sentimentChart" class="full-width" *ngIf="sentimentChart">  
-              <apx-chart
-                [series]="sentimentChart.series"
-                [chart]="sentimentChart.chart"
-                [dataLabels]="sentimentChart.dataLabels"
-                [plotOptions]="sentimentChart.plotOptions"
-                [yaxis]="sentimentChart.yaxis"
-                [xaxis]="sentimentChart.xaxis"
-                [legend]="sentimentChart.legend"
-                [colors]="sentimentChart.colors"
-                [grid]="sentimentChart.grid"
-              ></apx-chart> 
-            </div>  
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
+      
+    </ion-row> -->
     
-    <ion-row class="h-50">
+    <!-- <ion-row class="h-50">
       <ion-col size="12" class="ion-padding">
         <ion-card class="card">
           <ion-card-title class="card-title">
@@ -118,6 +135,6 @@
           </ion-card-content>
         </ion-card>
       </ion-col>
-    </ion-row>
+    </ion-row> -->
   </ion-grid>
 </ion-content>
