@@ -4,13 +4,13 @@
     <ion-buttons slot="end">
       <ion-button fill="outline" (click)="onAddTopic()">Add topic<ion-icon
           name="add-circle-outline"></ion-icon></ion-button>
-      <ion-button fill="outline" class="select-region" (click)="onKnowMore()">Know more<ion-icon
-          name="help-outline"></ion-icon>
+      <ion-button fill="outline" class="select-region" (click)="onKnowMore()">Know More on Topics
+        <ion-icon name="information-circle-outline"></ion-icon>
       </ion-button>
-      <input type="file" #fileInputRef id="fileInput" style="display: none" (change)="handleFileInput($event)" accept=".docx,.txt">
+      <!-- <input type="file" #fileInputRef id="fileInput" style="display: none" (change)="handleFileInput($event)" accept=".docx,.txt">
       <ion-button (click)="config()">
         <ion-icon name="cloud-upload-outline" slot="icon-only"></ion-icon>
-      </ion-button>
+      </ion-button> -->
       <ion-button (click)="logout()">
         <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
       </ion-button>
@@ -28,7 +28,7 @@
         </ng-select>
       </ion-col>
       <ion-col size-md="2.5" size-xs="12" class="margin-5">
-        <ion-label class="lbl">Topics <span class="red">*</span></ion-label>
+        <ion-label class="lbl">Topic<span class="red">*</span></ion-label>
         <ng-select class="select-region custom" placeholder="Select" [(ngModel)]="topicSelected">
           <ng-option *ngFor="let topic of topics" [value]="topic.value">{{topic.value}}</ng-option>
         </ng-select>
@@ -62,7 +62,7 @@
           <ion-row>
             <ion-card class="card">
               <ion-card-title class="card-title">
-                Annual GDP growth (percent change)
+                Annual GDP growth and Inflation rate in percentage
               </ion-card-title>
               <ion-card-content>
                 <div *ngIf="!gdpChart">Select region for Annual GDP Growth & Inflataion rate</div>
@@ -75,19 +75,6 @@
                     >
                   </apx-chart>
                 </div>  
-              </ion-card-content>
-            </ion-card>
-          </ion-row>
-          <br/>
-          <ion-row>
-            <ion-card class="card card-word-count" #cardWordContainer>
-              <ion-card-title class="card-title">
-                Keyphrases from Global Media Data
-              </ion-card-title>
-              <ion-card-content>
-                <ion-spinner *ngIf="isLoadingKeyph"></ion-spinner>
-                <div *ngIf="wordData?.length == 0 && !isLoadingKeyph">Select region and enter topic for keyphrase extraction</div>
-                <div #wordCloudContainer [hidden]="wordData?.length == 0" class="div-chart"></div>  
               </ion-card-content>
             </ion-card>
           </ion-row>
@@ -108,11 +95,37 @@
                     [plotOptions]="sentimentChart.plotOptions"
                     [yaxis]="sentimentChart.yaxis"
                     [xaxis]="sentimentChart.xaxis"
+                    [fill]="sentimentChart.fill"
+                    [title]="sentimentChart.title"
+                    [labels]="sentimentChart.labels"
+                    [legend]="sentimentChart.legend"
+                    [colors]="sentimentChart.colors"
+                  ></apx-chart>
+                  <!-- <apx-chart
+                    [series]="sentimentChart.series"
+                    [chart]="sentimentChart.chart"
+                    [dataLabels]="sentimentChart.dataLabels"
+                    [plotOptions]="sentimentChart.plotOptions"
+                    [yaxis]="sentimentChart.yaxis"
+                    [xaxis]="sentimentChart.xaxis"
                     [legend]="sentimentChart.legend"
                     [colors]="sentimentChart.colors"
                     [grid]="sentimentChart.grid"
-                  ></apx-chart> 
+                  ></apx-chart>  -->
                 </div>  
+              </ion-card-content>
+            </ion-card>
+          </ion-row>
+          <br/>
+          <ion-row>
+            <ion-card class="card card-word-count" #cardWordContainer>
+              <ion-card-title class="card-title">
+                Keyphrases from Global Media Data
+              </ion-card-title>
+              <ion-card-content>
+                <ion-spinner *ngIf="isLoadingKeyph"></ion-spinner>
+                <div *ngIf="wordData?.length == 0 && !isLoadingKeyph">Select region and enter topic for keyphrase extraction</div>
+                <div #wordCloudContainer [hidden]="wordData?.length == 0" class="div-chart"></div>  
               </ion-card-content>
             </ion-card>
           </ion-row>
@@ -121,15 +134,19 @@
           <ion-card class="card card-insights">
             <ion-card-title class="card-title">
               <div class="d-flex-justify-between">
-                <span>Global Insights</span>
-                <ion-button size="small" fill="clear" class="btn-export" (click)="onExport()" *ngIf="!exporting && globalInsights">
+                <span>Global Media Insights</span>
+                <ion-button size="small" fill="clear" class="btn-export" (click)="onExport()" *ngIf="globalInsights && !exporting">
                   <ion-icon name="download-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+                <ion-button size="small" fill="clear" class="btn-export" (click)="onNewsDown()" *ngIf="globalInsights && !exporting">
+                  <ion-icon name="newspaper-outline" slot="icon-only"></ion-icon>
                 </ion-button>
               </div>
             </ion-card-title>
             <ion-card-content [ngClass]="globalInsights ? 'card-top' : ''">
               <ion-spinner *ngIf="isLoadingInsights"></ion-spinner>
               <div *ngIf="!globalInsights && !isLoadingInsights">Select region and enter topic for the insights</div>
+              <div class="score" *ngIf="globalInsights && overallScore?.length > 0">Score: {{overallScore}}</div>
               <div [innerHTML]="globalInsights"></div>
             </ion-card-content>
           </ion-card>

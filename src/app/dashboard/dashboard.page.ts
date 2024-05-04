@@ -13,11 +13,13 @@ import { AlertService } from '../services/alert-service';
 import { TopicInfoPage } from '../topic-info/topic-info.page';
 import { AddTopicPage } from '../add-topic/add-topic.page';
 import { HttpService } from '../services/http-service';
-import { jsPDF } from 'jspdf';  
+import { SocialMediaType } from '../constants/constant';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 import * as d3 from 'd3';
 import * as d3Cloud from 'd3-cloud';
 import * as Papa from 'papaparse';
-import html2canvas from 'html2canvas';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -46,7 +48,38 @@ export class DashboardPage implements OnInit {
   selectedFile: File;
 
   // Chart objects
+  series: number[] = [44, 55, 13];  
+  labels: string[] = ['Series 1', 'Series 2', 'Series 3'];  
+  
   sentimentChart: any;
+  // sentimentChartOpts:any = {
+  //   series: [],
+  //   chart: {
+  //     height: 350,
+  //     type: 'donut',
+  //   },
+  //   plotOptions: {
+  //     pie: {
+  //       donut: {
+  //         labels: {
+  //           show: true,
+  //           name: {
+  //             show: false
+  //           }
+  //         }
+  //       }
+  //     }
+  //   },
+  //   colors: ['#0f9e30', '#FFD700', "#E40909"],
+  //   labels: ['Positive', 'Neutral', 'Negative'],
+  //   dataLabels: {
+  //     enabled: true,
+  //   },
+  //   legend: {
+  //     // show: false
+  //   },
+  // };
+  
   sentimentChartOpts = {
     series: [
       {
@@ -59,15 +92,15 @@ export class DashboardPage implements OnInit {
       width: '100%',
       type: "bar"
     },
-    colors: ['#0f9e30', '#Ada8c9', "#E40909"],
+    colors: ['#0f9e30', '#FFD700', "#E40909"],
     plotOptions: {
       bar: {
-        columnWidth: "30px",
+        columnWidth: "50px",
         distributed: true
       }
     },
     dataLabels: {
-      enabled: false
+      enabled: true
     },
     legend: {
       show: false
@@ -76,8 +109,15 @@ export class DashboardPage implements OnInit {
       categories: ["Positive", "Neutral", "Negative"],
       labels: {
         style: {
-          colors: ['#0f9e30', '#Ada8c9', "#E40909"],
-          fontSize: "12px"
+          colors: ['#000', '#000', "#000"],
+          fontSize: "13px"
+        }
+      }
+    },
+    yaxis: {
+      labels: {
+        style: {
+          fontSize: "13px"
         }
       }
     }
@@ -87,11 +127,11 @@ export class DashboardPage implements OnInit {
   gdpChartOpts = {
     series: [
       {
-        name: 'Annual GDP growth (percent change)',
+        name: 'Annual GDP growth',
         data: []
       },
       {
-        name: 'Annual average inflation (consumer prices) rate',
+        name: 'Inflation rate (consumer purchasing power)',
         data: []
       }
     ],
@@ -118,6 +158,7 @@ export class DashboardPage implements OnInit {
   positiveCount = 0;
   negativeCount = 0;
   neutralCount = 0;
+  overallScore: string;
 
   // Loaders
   isLoadingInsights = false;
@@ -164,6 +205,14 @@ export class DashboardPage implements OnInit {
   }
 
   // ionViewDidEnter() {
+
+  // this.positiveCount = 52;
+    // this.negativeCount = 45;
+    // this.neutralCount = 34;
+    // let data = [this.positiveCount, this.neutralCount, this.negativeCount];  
+    // this.sentimentChart = this.sentimentChartOpts;  
+    // this.sentimentChartOpts.series[0].data = data;
+
   //   this.wordData = [{
   //     text: "one",
   //     size: 10,
@@ -179,13 +228,13 @@ export class DashboardPage implements OnInit {
   //   this.drawWordChart();
   // }
 
-  @HostListener('window:resize', ['$event'])  
-  onWindowResize(event: any) {  
+  @HostListener('window:resize', ['$event'])
+  onWindowResize(event: any) {
     // Handle window resize event here  
     this.drawWordChart();
     this.detectScreenSize();
   }
-  
+
   // Method to detect screen size
   detectScreenSize() {
     if (this.platform.is('tablet') || this.platform.is('ipad') || this.platform.width() >= 768) {
@@ -201,6 +250,7 @@ export class DashboardPage implements OnInit {
 
   drawWordChart() {
     let data = this.wordData.slice(0, 50);
+    console.log("Drawingword**", data);
     const colorScale = d3.scaleOrdinal()
       .domain([0, 50]) // Define the domain of values  
       .range(['#cc33ff', '#33cc33', '#ff3300', '#0000ff', '#00cccc', '#237291', '#9d2j42', '#a2j4ld']); // Define the range of colors  
@@ -274,7 +324,7 @@ export class DashboardPage implements OnInit {
         this.newsData = results.data;
         this.generateInsights(this.newsData);
         this.generateKeyPhrases(this.newsData);
-        this.generateSentiments(this.newsData);
+        // this.generateSentiments(this.newsData);
         this.fileInputRef.nativeElement.value = '';
       },
       error: (error) => {
@@ -361,26 +411,12 @@ export class DashboardPage implements OnInit {
   generateCSV() {
     let data = Object.assign([], this.newsData);
     const csv = Papa.unparse([['#', 'title', 'description'], ...data.map((news, index) => [index + 1, news.title, news.description])]);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `${this.getRegionText()}-${this.topicSelected}-${Date.now()}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
     return csv;
   }
 
-  ngAfterViewInit() {
-    // Access the wordCloudContainer element here  
-    if (this.wordCloudContainer && this.wordData.length > 0) {
-      this.drawWordChart();
-    }
-  }
-
   generateInsights(csv) {
+    this.globalInsights = undefined;
+    this.overallScore = '';
     this.loadingService.present('insights', 'Generating insights...');
     this.isLoadingInsights = true;
     const headers = new HttpHeaders({
@@ -406,7 +442,7 @@ export class DashboardPage implements OnInit {
         },
         {
           "role": "user",
-          "content": `Based on an analysis of political stability, economic stability, and labor movements in ${this.getRegionText()}, determine whether it would be a viable decision ${industryPrompt} in ${this.getRegionText()}. Provide reasons for your answer and suggest any potential risks or challenges the company may face in terms of political stability: economic stability: by considering factors such as GDP growth: income inequality: and the informal labor market: labor movements, recommendations and overall score in the format of ?/100`
+          "content": `Based on an analysis of political stability, economic stability, and labor movements in ${this.getRegionText()}, determine whether it would be a viable decision ${industryPrompt} in ${this.getRegionText()}. Provide reasons for your answer and suggest any potential risks or challenges the company may face in terms of political stability: economic stability: by considering factors such as GDP growth: income inequality: and the informal labor market: labor movements, recommendations and overall score: score/100`
         },
       ],
       "max_tokens": 800,
@@ -421,11 +457,22 @@ export class DashboardPage implements OnInit {
         this.isLoadingInsights = false;
         if (data && data.choices && data.choices.length > 0) {
           let res = data.choices[0].message.content;
+          debugger;
+          const pattern = /Overall Score: (\d+\/\d+)/;  
+          const match = res.match(pattern);  
+            
+          if (match && match.length > 1) {  
+            const score = match[1];  
+            this.overallScore = score;
+            console.log(score); // Output: "85/100"  
+          } else {  
+            console.log("Overall score not found.");  
+          }  
+
           res = res.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
           res = res.replace(/\*(.*?)\*/g, "<strong>$1</strong>");
           res = res.replace(/(\d+\.)\s(.*?)/g, "<strong>$1</strong> $2");
           res = res.replace(/(.*:)/g, "<b>$1</b>");
-
           this.globalInsights = res.replace(/\n/g, "<br>");
         }
       }, (error) => {
@@ -436,13 +483,15 @@ export class DashboardPage implements OnInit {
       });
   }
 
-  prepareDocs(csv) {
+  prepareDocs(csv, isKeyphrase = false) {
     let docs = [];
     let allNews = Object.assign([], csv);
-    if (allNews.length > 11) {
-      allNews = allNews.slice(1, 11);
-    } else {
-      allNews = allNews;
+    if(isKeyphrase) {
+      if (allNews.length > 11) {
+        allNews = allNews.slice(1, 11);
+      } else {
+        allNews = allNews;
+      }
     }
     allNews.forEach((news, index) => {
       docs.push({
@@ -454,60 +503,148 @@ export class DashboardPage implements OnInit {
     return docs;
   }
 
-  generateSentiments(csv) {
-    // this.loadingService.present('sentiments', 'Generating sentiments...');
-    let docs = this.prepareDocs(csv);
-    this.isLoadingSentmts = true;
+  // generateSentiments(csv) {
+  //   // this.loadingService.present('sentiments', 'Generating sentiments...');
+  //   let docs = this.prepareDocs(csv);
+  //   this.isLoadingSentmts = true;
 
-    const headers = new HttpHeaders({
-      'Ocp-Apim-Subscription-Key': environment.langServiceAPIKey,
-      'Content-Type': 'application/json'
-    });
+  //   const headers = new HttpHeaders({
+  //     'Ocp-Apim-Subscription-Key': environment.langServiceAPIKey,
+  //     'Content-Type': 'application/json'
+  //   });
 
-    const options = { headers: headers };
-    const content = {
-      "kind": "SentimentAnalysis",
-      "parameters": {
-        "modelVersion": "latest"
-      },
-      "analysisInput": {
-        "documents": docs
-      }
-    }
-    console.log("Docs", content);
-    const url = environment.langServiceAPIUrl + 'language/:analyze-text?api-version=2023-04-15-preview';
-    this.http.post(url, content, options)
-      .subscribe((response: any) => {
-        // Handle the success response  
-        // this.loadingService.dismiss('sentiments');
-        console.log(response);
-        this.isLoadingSentmts = false;
-        if (response && response.results && response.results.documents) {
-          const documents = response.results.documents;
-          documents.forEach((document) => {
-            const sentiment = document.sentiment;
-            if (sentiment === 'positive') {
-              this.positiveCount++;
-            } else if (sentiment === 'negative') {
-              this.negativeCount++;
-            } else if (sentiment === 'neutral') {
-              this.neutralCount++;
-            }
-          });
-          let data = [this.positiveCount, this.neutralCount, this.negativeCount];
-          this.sentimentChart = this.sentimentChartOpts;
-          this.sentimentChartOpts.series[0].data = data;
-        }
-      }, (error) => {
-        // Handle the error response  
-        console.log(error);
-        this.isLoadingSentmts = false;
-        // this.loadingService.dismiss('sentiments');
-      });
+  //   const options = { headers: headers };
+  //   const content = {
+  //     "kind": "SentimentAnalysis",
+  //     "parameters": {
+  //       "modelVersion": "latest"
+  //     },
+  //     "analysisInput": {
+  //       "documents": docs
+  //     }
+  //   }
+  //   console.log("Docs", content);
+  //   const url = environment.langServiceAPIUrl + 'language/:analyze-text?api-version=2023-04-15-preview';
+  //   this.http.post(url, content, options)
+  //     .subscribe((response: any) => {
+  //       // Handle the success response  
+  //       // this.loadingService.dismiss('sentiments');
+  //       console.log(response);
+  //       this.isLoadingSentmts = false;
+  //       if (response && response.results && response.results.documents) {
+  //         const documents = response.results.documents;
+  //         documents.forEach((document) => {
+  //           const sentiment = document.sentiment;
+  //           if (sentiment === 'positive') {
+  //             this.positiveCount++;
+  //           } else if (sentiment === 'negative') {
+  //             this.negativeCount++;
+  //           } else if (sentiment === 'neutral') {
+  //             this.neutralCount++;
+  //           }
+  //         });
+  //         let data = [this.positiveCount, this.neutralCount, this.negativeCount];
+  //         this.sentimentChart = this.sentimentChartOpts;
+  //         this.sentimentChartOpts.series[0].data = data;
+  //       }
+  //     }, (error) => {
+  //       // Handle the error response  
+  //       console.log(error);
+  //       this.isLoadingSentmts = false;
+  //       // this.loadingService.dismiss('sentiments');
+  //     });
+  // }
+
+  resetWordChart() {
+    this.keyPhrases = [];
+    this.wordData = [];
+    // this.drawWordChart();
   }
 
-  generateKeyPhrases(csv) {
+  resetSentimentChart() {
+    this.sentimentChart = null;
+    this.positiveCount = 0;
+    this.negativeCount = 0;
+    this.neutralCount = 0;
+  }
+
+  generateSentiments(csv) {  
+    this.resetSentimentChart();
     let docs = this.prepareDocs(csv);
+    this.isLoadingSentmts = true;  
+    
+    const headers = new HttpHeaders({  
+      'Ocp-Apim-Subscription-Key': environment.langServiceAPIKey,  
+      'Content-Type': 'application/json'  
+    });  
+    
+    const options = { headers: headers };  
+    const url = environment.langServiceAPIUrl + 'language/:analyze-text?api-version=2023-04-15-preview';  
+    
+    const batchSize = 10;  
+    const batches = this.splitIntoBatches(docs, batchSize); // Split the documents into batches of size 10  
+    
+    this.processBatch(batches, 0, options, url);  
+  }  
+    
+  splitIntoBatches(arr, batchSize) {  
+    const batches = [];  
+    for (let i = 0; i < arr.length; i += batchSize) {  
+      batches.push(arr.slice(i, i + batchSize));  
+    }  
+    return batches;  
+  }  
+    
+  processBatch(batches, index, options, url) {  
+    if (index < batches.length) {  
+      const content = {  
+        "kind": "SentimentAnalysis",  
+        "parameters": {  
+          "modelVersion": "latest"  
+        },  
+        "analysisInput": {  
+          "documents": batches[index]  
+        }  
+      };  
+    
+      this.http.post(url, content, options)  
+        .subscribe((response: any) => {  
+          // Handle the success response  
+          // console.log(response);  
+          if (response && response.results && response.results.documents) {  
+            const documents = response.results.documents;  
+            this.processSentiments(documents);  
+          }  
+          this.processBatch(batches, index + 1, options, url); // Process the next batch  
+        }, (error) => {  
+          // Handle the error response  
+          console.log(error);  
+          this.isLoadingSentmts = false;  
+        });  
+    } else {  
+      let data = [this.positiveCount, this.neutralCount, this.negativeCount];  
+      this.sentimentChart = this.sentimentChartOpts;  
+      this.sentimentChartOpts.series[0].data = data;
+      this.isLoadingSentmts = false;  
+    }  
+  }
+    
+  processSentiments(documents) {  
+    documents.forEach((document) => {  
+      const sentiment = document.sentiment;  
+      if (sentiment === 'positive') {  
+        this.positiveCount++;  
+      } else if (sentiment === 'negative') {  
+        this.negativeCount++;  
+      } else if (sentiment === 'neutral') {  
+        this.neutralCount++;  
+      }  
+    });
+  }  
+
+  generateKeyPhrases(csv) {
+    this.resetWordChart();
+    let docs = this.prepareDocs(csv, true);
     this.isLoadingKeyph = true;
     const headers = new HttpHeaders({
       'Ocp-Apim-Subscription-Key': environment.langServiceAPIKey,
@@ -545,10 +682,12 @@ export class DashboardPage implements OnInit {
           console.log('word data', this.wordData);
           this.drawWordChart();
         }
+        this.generateSentiments(csv);
       }, (error) => {
         // Handle the error response  
         console.log(error);
         this.isLoadingKeyph = false;
+        this.generateSentiments(csv);
       });
   }
 
@@ -577,8 +716,31 @@ export class DashboardPage implements OnInit {
     );
     return request;
   }
+
+  getSocialMediaRequestByTopic(topic, type: SocialMediaType) {
+    let params, headers, options;
+    let query = `${topic}+${this.getRegionText()}`;
+    if(SocialMediaType.Reddit) {
+      params = { 'q': query, 'sort': 'new'}
+      options = { headers: headers, params: params };
+    } else {
+      params = { 'query': query }
+      headers = {
+        'X-RapidAPI-Key': type === SocialMediaType.Twitter ? environment.twitterAPIKey : type === SocialMediaType.LinkedIn ? environment.linkedInAPIKey : environment.redditAPIKey,
+        'X-RapidAPI-Host': type === SocialMediaType.Twitter ? environment.twitterAPIHost : type === SocialMediaType.LinkedIn ? environment.linkedInAPIHost : environment.redditHost
+      }
+      options = { headers: headers, params: params };
+    }
+    const request = this.http.get(type === SocialMediaType.Twitter ? environment.twitterAPIUrl : type === SocialMediaType.LinkedIn ? environment.linkedInAPIUrl : environment.redditAPIUrl, options).pipe(
+      catchError((error) => {
+        console.error('Twitter request failed:', error);
+        return of(null); // Return a default value or null for the failed request  
+      })
+    );
+    return request;
+  }
   getGlobalMediaData() {
-    this.loadingService.present('news', 'Getting global media data...');
+    this.loadingService.present('news', 'Collecting global media data...');
     let topicBingReq, topicReq;
     let arrRequests = [];
 
@@ -593,60 +755,11 @@ export class DashboardPage implements OnInit {
     const econStabilityReq = this.getNewsRequestByTopic('economics');
     const labourMovBingReq = this.getBingRequestByTopic('employment');
     const labourMovReq = this.getNewsRequestByTopic('employment');
+    const redditReq = this.getSocialMediaRequestByTopic(this.search, SocialMediaType.Reddit);
+    const twitterReq = this.getSocialMediaRequestByTopic(this.search, SocialMediaType.Twitter);
+    const linkedInReq = this.getSocialMediaRequestByTopic(this.search, SocialMediaType.LinkedIn);
 
-    arrRequests = arrRequests.concat([polStabilityBingReq, polStabilityReq, econStabilityBingReq, econStabilityReq, labourMovBingReq, labourMovBingReq]);
-
-    // const twitterParams = { 'query': this.search }
-    // const twitterHeaders = {
-    //   'X-RapidAPI-Key': environment.twitterAPIKey,
-    //   'X-RapidAPI-Host': environment.twitterAPIHost
-    // }
-    // const twitterOptions = { headers: twitterHeaders, params: twitterParams };
-    // const twitterReq = this.http.get(environment.twitterAPIUrl, twitterOptions).pipe(  
-    //   catchError((error) => {  
-    //     console.error('Twitter request failed:', error);  
-    //     return of(null); // Return a default value or null for the failed request  
-    //   })  
-    // );
-
-    // const redditParams = { 'query': this.search }
-    // const redditHeaders = {
-    //   'X-RapidAPI-Key': environment.redditAPIKey,
-    //   'X-RapidAPI-Host': environment.redditHost
-    // }
-    // const redditOptions = { headers: redditHeaders, params: redditParams };
-    // const redditReq = this.http.get(environment.redditAPIUrl, redditOptions).pipe(
-    //   catchError((error) => {
-    //     console.error('linkedin request failed:', error);
-    //     return of(null); // Return a default value or null for the failed request  
-    //   })
-    // );
-
-    // const instaParams = { 'query': this.search }
-    // const instaHeaders = {
-    //   'X-RapidAPI-Key': environment.instagramAPIKey,
-    //   'X-RapidAPI-Host': environment.instagramAPIHost
-    // }
-    // const instaOptions = { headers: instaHeaders, params: instaParams };
-    // const instaReq = this.http.get(environment.instagramAPIUrl, instaOptions).pipe(  
-    //   catchError((error) => {  
-    //     console.error('Instagram request failed:', error);  
-    //     return of(null); // Return a default value or null for the failed request  
-    //   })  
-    // );
-
-    // const linkedInParams = { 'query': this.search }
-    // const linkedInHeaders = {
-    //   'X-RapidAPI-Key': environment.linkedInAPIKey,
-    //   'X-RapidAPI-Host': environment.linkedInHost
-    // }
-    // const linkedInOptions = { headers: linkedInHeaders, params: linkedInParams };
-    // const linkedInReq = this.http.get(environment.linkedInAPIUrl, linkedInOptions).pipe(  
-    //   catchError((error) => {  
-    //     console.error('linkedin request failed:', error);  
-    //     return of(null); // Return a default value or null for the failed request  
-    //   })  
-    // );
+    arrRequests = arrRequests.concat([polStabilityBingReq, polStabilityReq, econStabilityBingReq, econStabilityReq, labourMovBingReq, labourMovReq, redditReq, twitterReq, linkedInReq]);
 
     forkJoin(arrRequests).subscribe(
       (responses) => {
@@ -654,9 +767,10 @@ export class DashboardPage implements OnInit {
         this.processResponses(responses);
         if (this.newsData && this.newsData.length > 0) {
           let csv = this.generateCSV();
-          this.generateInsights(csv);
-          this.generateKeyPhrases(this.newsData);
-          this.generateSentiments(this.newsData);
+          setTimeout(() => {
+            this.generateInsights(csv);
+            this.generateKeyPhrases(this.newsData);
+          }, 10);
         } else {
           this.alertService.presentAlert('Search Term Not Found', 'No data found for the given search term and region. Try with a different search term or region');
         }
@@ -673,47 +787,47 @@ export class DashboardPage implements OnInit {
     this.newsData = [];
 
     responses.forEach(response => {
-      if (response !== null && response?.value || response?.articles) {
-        let articles = response.value || response.articles;
+      if (response !== null && (response?.value || response?.articles || response?.timeline || (response?.data && !response?.data.children))) {
+        let articles = response.value || response.articles || response.timeline || response.data;
         let arr = articles.map((news) => {
-          let title = news.name || news.title;
+          let title = news.name || news.title || news.text;
           return {
             title: title === 'string' ? title.replace(/[^\w\s]/gi, '') : title,
             description: news.description === 'string' ? news.description.replace(/[^\w\s]/gi, '') : news.description
           }
         });
         this.newsData = this.newsData.concat(arr);
+      } else if(response!==null && response.data && response.data.children) {
+        let articles = response.data.children;
+        let arr = articles.map((news) => {
+          let title = news.data?.title;
+          return {
+            title: title === 'string' ? title.replace(/[^\w\s]/gi, '') : title,
+            description: ''
+          }
+        });
+        this.newsData = this.newsData.concat(arr);
       }
     });
     this.newsData = this.newsData.filter(record => record && !record.title?.includes("[Removed]") && !record.description?.includes("[Removed]"));
-
-    // //twitter posts
-    // if(responses[1] && responses[1].timeline) {
-    //   let posts = responses[1].timeline;
-    //   let arr = posts.map((post) => post.text)
-    //   this.newsData = this.newsData.concat(arr);
-    //   series.push({x: 'Twitter', y: arr.length});
-    // } else {
-    //   series.push({x: 'Twitter', y: 0});
-    // }
-
-    // //reddit posts
-    // if(responses[2] && responses[2].data) {
-    //   let posts = responses[2].data;
-    //   let arr = posts.map((post) => post.title)
-    //   this.newsData = this.newsData.concat(arr);
-    //   series.push({x: 'Reddit', y: arr.length});
-    // } else {
-    //   series.push({x: 'Reddit', y: 0});
-    // }
-
-    // //linkedin posts
-    // if(responses[3] && responses[3].data) {
-    //   let posts = responses[3].data;
-    //   let arr = posts.map((post) => post.text)
-    //   this.newsData.concat(arr);
-    // }
+    this.newsData = this.removeNonEnglishCharacters(this.newsData);
   }
+  removeNonEnglishCharacters = (arr: object[]): object[] => {
+    const englishRegex = /[^\x00-\x7F]/g; // Regular expression to match non-English characters  
+
+    return arr.map(obj => {
+      const newObj = { ...obj }; // Create a shallow copy of the object  
+
+      for (const key in newObj) {
+        if (newObj.hasOwnProperty(key) && typeof newObj[key] === 'string') {
+          newObj[key] = newObj[key].replace(englishRegex, ''); // Remove non-English characters from the string value  
+        }
+      }
+
+      return newObj;
+    });
+  };
+
   getRegionText() {
     if (this.regionSelected)
       return this.regions.filter(region => region.key === this.regionSelected)[0].value;
@@ -785,9 +899,25 @@ export class DashboardPage implements OnInit {
     modal.present();
     const { data, role } = await modal.onWillDismiss();
   }
+
   getFileName() {
-    return this.getRegionText() + "_" + this.topicSelected + Date.now() + ".pdf";
+    return this.getRegionText() + "_" + this.topicSelected + "_insights_" + Date.now() + ".pdf";
   }
+  
+  onNewsDown() {
+    const data = this.newsData;
+    const csv = Papa.unparse([['#', 'title', 'description'], ...data.map((news, index) => [index + 1, news.title, news.description])]);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${this.getRegionText()}-${this.topicSelected}-${Date.now()}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   onExport() {
     this.exporting = true;
     setTimeout(() => {
@@ -807,8 +937,8 @@ export class DashboardPage implements OnInit {
           doc.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight, '', 'FAST');
           heightLeft -= pageHeight;
         }
-          doc.save(this.getFileName());
-          this.exporting = false;
+        doc.save(this.getFileName());
+        this.exporting = false;
       });
     }, 1000);
   }

@@ -32,6 +32,7 @@ ion-content {
         display: flex;
         justify-content: flex-start;
         align-items: flex-start;
+        flex-direction: column;
     }
 }
 .card-insights {
@@ -43,7 +44,7 @@ ion-content {
 .row-config {
     background-color: #fff;
     border-bottom: 1px solid lightgray;
-    min-height: 70px;
+    min-height: 75px;
     padding: 0 10px;
     display: flex;
     align-items: center;
@@ -92,4 +93,12 @@ ion-header {
 }
 .red {
     color: red;
+}
+.score {
+    padding: 5px;
+    border-radius: 5px;
+    background-color: aqua;
+    color: black;
+    font-weight: bold;
+    margin-bottom: 7px;
 }
