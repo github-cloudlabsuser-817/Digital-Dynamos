@@ -47,7 +47,7 @@
     box-shadow: none;
     border-radius: 0;
     ion-card-title {
-        padding: 20px;
+        padding: 0 20px;
         font-size: 35px;
         color: var(--ion-color-primary);
         font-weight: bold;
@@ -59,7 +59,7 @@
     }
 }
 .login-btn {
-    padding: 30px 0px;
+    padding: 15px 0px;
     font-size: 18px;
 }
 .text-right {
@@ -81,4 +81,8 @@ ion-item {
     color: red;
     font-size: 12px;
     text-align: center;
+}
+.img-logo {
+    padding-top: 20px;
+    width: 200px;
 }
